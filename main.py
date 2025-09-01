@@ -73,11 +73,11 @@ class main:
                 sistema.rentarVehiculo(indice, dias)
             case 4:
                 sistema.mostrarInventario()
-                identificador = input("Ingrese el identificador del vehículo: ")
+                identificador = input("Ingrese el identificador del vehículo: ").upper()
                 sistema.devolverVehiculo(identificador)
             case 5:
                 sistema.mostrarInventario()
-                identificador = input("Ingrese el identificador del vehículo: ")
+                identificador = input("Ingrese el identificador del vehículo: ").upper()
                 sistema.eliminarVehiculo(identificador)
             case 6:
                 print("Gracias por usar el sistema de alquiler.")
