@@ -2,8 +2,9 @@ class sistemaAlquiler:
     def __init__(self):
         self.vehiculos = []
 
-    def agregarVehiculo(self, vehiculo):
+    def agregarVehiculo(self, vehiculo: object):
         self.vehiculos.append(vehiculo)
+        print (f"El vehiculo {vehiculo.marca} - {vehiculo.modelo} ha sido agregado correctamente.")
 
     def mostrarDisponibles(self):
         for i, v in enumerate(self.vehiculos):
