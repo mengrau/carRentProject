@@ -35,7 +35,7 @@ mi_proyecto/
 ### 1. Clonar o descargar el repositorio
 
 ```bash
-git clone <URL_DE_TU_REPO>
+git clone <https://github.com/mengrau/carRentProject.git>
 cd mi_proyecto
 ```
 
