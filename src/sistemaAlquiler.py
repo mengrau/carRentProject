@@ -41,7 +41,7 @@ class sistemaAlquiler:
         }
 
         for i, v in enumerate(self.vehiculos):
-            estado = "Disponible" if v.disponible else "Ocupado"
+            estado = "Disponible" if v._disponible else "Ocupado"
             tipo = nombres.get(v.__class__.__name__)  
 
             if isinstance(v, (Auto, Moto)):
@@ -62,14 +62,14 @@ class sistemaAlquiler:
     def devolverVehiculo(self, identificador: str):
         for vehiculo in self.vehiculos:
             if isinstance(vehiculo, (Auto, Moto)) and vehiculo.placa == identificador:
-                if not vehiculo.disponible:
+                if not vehiculo._disponible:
                     vehiculo.devolver()
                     print(f"Vehículo {vehiculo.marca} {vehiculo.modelo} devuelto con éxito.")
                 else:
                     print("Este vehículo ya está disponible, no se puede devolver.")
                 return
             elif isinstance(vehiculo, Bici) and vehiculo.numChasis == identificador:
-                if not vehiculo.disponible:
+                if not vehiculo._disponible:
                     vehiculo.devolver()
                     print(f"Bicicleta {vehiculo.marca} {vehiculo.modelo} devuelta con éxito.")
                 else:
