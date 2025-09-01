@@ -36,7 +36,7 @@ mi_proyecto/
 
 ```bash
 git clone <https://github.com/mengrau/carRentProject.git>
-cd mi_proyecto
+cd carRentProyect
 ```
 
 O descarga el ZIP y descomprímelo.
