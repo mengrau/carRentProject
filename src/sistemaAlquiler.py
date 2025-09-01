@@ -79,11 +79,11 @@ class sistemaAlquiler:
 
     def eliminarVehiculo(self, identificador: str):
         for i, vehiculo in enumerate(self.vehiculos):
-            if isinstance(vehiculo, (Auto, Moto)) and vehiculo.placa == identificador:  # ⚠️ AQUÍ estaba el error
+            if isinstance(vehiculo, (Auto, Moto)) and vehiculo.placa == identificador:
                 eliminado = self.vehiculos.pop(i)
                 print(f"Vehículo {eliminado.marca} {eliminado.modelo} {eliminado.placa} eliminado correctamente.")
                 return
-            elif isinstance(vehiculo, Bici) and vehiculo.numChasis == identificador:  # ⚠️ TAMBIÉN faltaba validar
+            elif isinstance(vehiculo, Bici) and vehiculo.numChasis == identificador:
                 eliminado = self.vehiculos.pop(i)
                 print(f"Bicicleta {eliminado.marca} {eliminado.modelo} {eliminado.numChasis} eliminada correctamente.")
                 return

@@ -3,15 +3,15 @@ class Vehiculo:
         self.marca = marca
         self.modelo = modelo
         self.valorDia = valorDia
-        self.disponible = True
+        self._disponible = True
 
     def alquilar (self, dias:int)->int:
-        if self.disponible:
-            self.disponible = False
+        if self._disponible:
+            self._disponible = False
             costo = dias * self.valorDia
             return costo
         else:
             return None
 
     def devolver(self):
-        self.disponible = True
+        self._disponible = True
