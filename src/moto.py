@@ -9,5 +9,5 @@ class Moto(Vehiculo):
         self.placa = placa
     
     def validarPlacaMoto(placa: str) -> bool:
-        patron = r'^[A-Z]{3}[0-9]{2}[A-Z]{1}$'
-        return bool(re.match(patron, placa.upper()))
+        patron = r'^[A-Z]{3}[0-9]{2}[A-Z]?$'
+        return bool(re.match(patron, placa))
