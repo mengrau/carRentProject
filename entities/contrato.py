@@ -7,16 +7,18 @@ from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from database.config import Base
 
 class Contrato(Base):
     __tablename__ = 'contratos'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=False)
-    vehiculo_id = Column(Integer, ForeignKey("vehiculos.id"), nullable=False)
-    empleado_id = Column(Integer, ForeignKey("empleados.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    cliente_id = Column(UUID(as_uuid=True), ForeignKey("clientes.id"), nullable=False)
+    vehiculo_id = Column(UUID(as_uuid=True), ForeignKey("vehiculos.id"), nullable=False)
+    empleado_id = Column(UUID(as_uuid=True), ForeignKey("empleados.id"), nullable=False)
     fecha_inicio = Column(DateTime, nullable=False)
     fecha_fin = Column(DateTime, nullable=True)
     activo = Column(Boolean, default=True, nullable=False)

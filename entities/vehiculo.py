@@ -8,14 +8,16 @@ from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from database.config import Base
 
 class Vehiculo(Base):
     __tablename__ = 'vehiculos'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    tipo_id = Column(Integer, ForeignKey("tipos_vehiculo.id"), nullable=False)  # Relación con TipoVehiculo
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    tipo_id = Column(UUID(as_uuid=True), ForeignKey("tipos_vehiculo.id"), nullable=False)
     marca = Column(String(100), nullable=False)
     modelo = Column(String(100), nullable=False)
     placa = Column(String(20), unique=True, nullable=True, index=True)

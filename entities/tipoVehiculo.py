@@ -10,6 +10,8 @@ from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional, List
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from database.config import Base
 
@@ -28,7 +30,7 @@ class TipoVehiculo(Base):
     
     __tablename__ = 'tipos_vehiculo'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     nombre = Column(String(100), unique=True, nullable=False, index=True)
     descripcion = Column(Text, nullable=True)
     activo = Column(Boolean, default=True, nullable=False)

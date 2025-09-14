@@ -7,13 +7,15 @@ from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator, EmailStr
 from datetime import datetime
 from typing import Optional, List
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from database.config import Base
 
 class Cliente(Base):
     __tablename__ = 'clientes'
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     nombre = Column(String(150), nullable=False)
     email = Column(String(150), unique=True, nullable=False)
     telefono = Column(String(20), nullable=True)
