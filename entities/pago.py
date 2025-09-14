@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 
-from ..database.database import Base
+from database.config import Base
 
 class Pago(Base):
     __tablename__ = 'pagos'

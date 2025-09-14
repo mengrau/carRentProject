@@ -14,3 +14,4 @@ email-validator==2.1.0
 # Additional Utilities
 python-dotenv==1.0.0    # Environment variables
 typing-extensions==4.8.0  # Type hints support
+passlib[bcrypt]==1.7.4  #Hashing passwords

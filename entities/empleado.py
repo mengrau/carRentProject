@@ -1,6 +1,6 @@
 """
-Entidad Cliente
-===============
+Entidad Empleado
+================
 """
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
@@ -10,39 +10,35 @@ from typing import Optional, List
 
 from database.config import Base
 
-class Cliente(Base):
-    __tablename__ = 'clientes'
+class Empleado(Base):
+    __tablename__ = 'empleados'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String(150), nullable=False)
     email = Column(String(150), unique=True, nullable=False)
-    telefono = Column(String(20), nullable=True)
+    rol = Column(String(50), nullable=False, default="Asesor")
     activo = Column(Boolean, default=True, nullable=False)
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
-    contratos = relationship("Contrato", back_populates="cliente", cascade="all, delete-orphan")
+    contratos = relationship("Contrato", back_populates="empleado", cascade="all, delete-orphan")
 
-class ClienteBase(BaseModel):
+class EmpleadoBase(BaseModel):
     nombre: str
     email: EmailStr
-    telefono: Optional[str] = None
+    rol: str = "Asesor"
     activo: bool = True
 
-    @validator('nombre')
-    def validar_nombre(cls, v):
-        return v.strip().title()
-
-class ClienteCreate(ClienteBase):
+class EmpleadoCreate(EmpleadoBase):
     pass
 
-class ClienteUpdate(BaseModel):
+class EmpleadoUpdate(BaseModel):
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
-    telefono: Optional[str] = None
+    rol: Optional[str] = None
     activo: Optional[bool] = None
 
-class ClienteResponse(ClienteBase):
+class EmpleadoResponse(EmpleadoBase):
     id: int
     fecha_creacion: datetime
     fecha_actualizacion: Optional[datetime]

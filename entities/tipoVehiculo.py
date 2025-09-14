@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional, List
 
-from ..database.database import Base
+from database.config import Base
 
 class TipoVehiculo(Base):
     """
@@ -68,4 +68,4 @@ class TipoVehiculoCreate(TipoVehiculoBase):
     pass
 
 class TipoVehiculoUpdate(BaseModel):
-    nombre: Optional[str]()
+    nombre: Optional[str]

@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from typing import Optional
 
-from ..database.database import Base
+from database.config import Base
 
 class Vehiculo(Base):
     __tablename__ = 'vehiculos'
