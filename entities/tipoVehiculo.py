@@ -71,3 +71,11 @@ class TipoVehiculoCreate(TipoVehiculoBase):
 
 class TipoVehiculoUpdate(BaseModel):
     nombre: Optional[str]
+    descripcion: Optional[str] = Field(None, description="Nueva descripción del tipo de vehículo")
+    activo: Optional[bool] = Field(None, description="Nuevo estado del tipo de vehículo")
+
+    @validator("nombre")
+    def validar_nombre(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError("El nombre no puede estar vacío si se envía")
+        return v.strip().title() if v else v
