@@ -4,7 +4,7 @@ Modelo de Usuario
 from sqlalchemy import Column, Integer, String, Enum, Boolean
 from sqlalchemy.orm import relationship
 from database.config import Base
-from entities.security import hash_password, verify_password
+from auth.security import hash_password, verify_password
 import enum
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
