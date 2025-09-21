@@ -3,6 +3,7 @@ from src.bici import Bici
 from src.moto import Moto
 from src.sistemaAlquiler import sistemaAlquiler
 
+
 class main:
     sistema = sistemaAlquiler()
     menu = """
@@ -19,12 +20,16 @@ class main:
         opcion = int(input("Elige una opción: "))
         match opcion:
             case 1:
-                tipo = int(input("""
+                tipo = int(
+                    input(
+                        """
         Ingrese el tipo de vehículo
         1. Automóvil
         2. Motocicleta 
         3. Bicicleta
-        """))
+        """
+                    )
+                )
                 while True:
                     if tipo == 1:
                         while True:
@@ -35,30 +40,54 @@ class main:
                                 print("Formato de placa inválido")
                         marca = input("Ingrese la marca del automóvil: ").upper()
                         modelo = input("Ingrese la referencia del automóvil: ").upper()
-                        valorDia = int(input("Ingrese el valor por día del automóvil: "))
-                        numPuertas = int(input("Ingrese la cantidad de puertas del automóvil: "))
-                        sistema.agregarVehiculo(Auto(marca, modelo, valorDia, numPuertas, placa))
+                        valorDia = int(
+                            input("Ingrese el valor por día del automóvil: ")
+                        )
+                        numPuertas = int(
+                            input("Ingrese la cantidad de puertas del automóvil: ")
+                        )
+                        sistema.agregarVehiculo(
+                            Auto(marca, modelo, valorDia, numPuertas, placa)
+                        )
                         break
                     elif tipo == 2:
                         while True:
-                            placa = input("Ingrese la placa de la motocicleta: ").upper()
+                            placa = input(
+                                "Ingrese la placa de la motocicleta: "
+                            ).upper()
                             if Moto.validarPlacaMoto(placa):
                                 break
                             else:
                                 print("Formato de placa inválido")
                         marca = input("Ingrese la marca de la motocicleta: ").upper()
-                        modelo = input("Ingrese la referencia de la motocicleta: ").upper()
-                        valorDia = int(input("Ingrese el valor por día de la motocicleta: "))
-                        cilindrada = int(input("Ingrese el cilindraje de la motocicleta: "))
-                        sistema.agregarVehiculo(Moto(marca, modelo, valorDia, cilindrada, placa))  
-                        break  
+                        modelo = input(
+                            "Ingrese la referencia de la motocicleta: "
+                        ).upper()
+                        valorDia = int(
+                            input("Ingrese el valor por día de la motocicleta: ")
+                        )
+                        cilindrada = int(
+                            input("Ingrese el cilindraje de la motocicleta: ")
+                        )
+                        sistema.agregarVehiculo(
+                            Moto(marca, modelo, valorDia, cilindrada, placa)
+                        )
+                        break
                     elif tipo == 3:
-                        numChasis = input("Ingrese el número de chasis de la bicicleta: ")
+                        numChasis = input(
+                            "Ingrese el número de chasis de la bicicleta: "
+                        )
                         marca = input("Ingrese la marca de la bicicleta: ").upper()
-                        modelo = input("Ingrese la referencia de la bicicleta: ").upper()
-                        valorDia = int(input("Ingrese el valor por día de la bicicleta: "))
+                        modelo = input(
+                            "Ingrese la referencia de la bicicleta: "
+                        ).upper()
+                        valorDia = int(
+                            input("Ingrese el valor por día de la bicicleta: ")
+                        )
                         tipoBici = input("Ingrese el tipo de bicicleta: ")
-                        sistema.agregarVehiculo(Bici(marca, modelo, valorDia, tipoBici, numChasis))
+                        sistema.agregarVehiculo(
+                            Bici(marca, modelo, valorDia, tipoBici, numChasis)
+                        )
                         break
                     else:
                         print("Opción no válida")
@@ -84,6 +113,3 @@ class main:
                 break
             case _:
                 print("Opción no válida")
-
-
-
