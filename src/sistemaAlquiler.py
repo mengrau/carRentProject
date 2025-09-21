@@ -2,6 +2,7 @@ from src.auto import Auto
 from src.bici import Bici
 from src.moto import Moto
 
+
 class sistemaAlquiler:
     def __init__(self):
         self.vehiculos = []
@@ -17,39 +18,47 @@ class sistemaAlquiler:
     def agregarVehiculo(self, vehiculo: object):
         if isinstance(vehiculo, (Auto, Moto)):
             if self.existeVehiculo(vehiculo.placa):
-                print(f"Ya existe un vehículo con la placa {vehiculo.placa}. No se agregó.")
+                print(
+                    f"Ya existe un vehículo con la placa {vehiculo.placa}. No se agregó."
+                )
                 return
         elif isinstance(vehiculo, Bici):
             if self.existeVehiculo(vehiculo.numChasis):
-                print(f"Ya existe una bicicleta con el chasis {vehiculo.numChasis}. No se agregó.")
+                print(
+                    f"Ya existe una bicicleta con el chasis {vehiculo.numChasis}. No se agregó."
+                )
                 return
         self.vehiculos.append(vehiculo)
         if isinstance(vehiculo, (Auto, Moto)):
-            print(f"Vehículo agregado: {vehiculo.marca} {vehiculo.modelo} {vehiculo.placa}")
+            print(
+                f"Vehículo agregado: {vehiculo.marca} {vehiculo.modelo} {vehiculo.placa}"
+            )
         else:
-            print(f"Vehículo agregado: {vehiculo.marca} {vehiculo.modelo} {vehiculo.numChasis}")
+            print(
+                f"Vehículo agregado: {vehiculo.marca} {vehiculo.modelo} {vehiculo.numChasis}"
+            )
 
     def mostrarInventario(self):
         if not self.vehiculos:
             print("No hay vehículos registrados.")
             return
 
-        nombres = {
-            "Auto": "Automóvil",
-            "Moto": "Motocicleta",
-            "Bici": "Bicicleta"
-        }
+        nombres = {"Auto": "Automóvil", "Moto": "Motocicleta", "Bici": "Bicicleta"}
 
         for i, v in enumerate(self.vehiculos):
             estado = "Disponible" if v._disponible else "Ocupado"
-            tipo = nombres.get(v.__class__.__name__)  
+            tipo = nombres.get(v.__class__.__name__)
 
             if isinstance(v, (Auto, Moto)):
-                print(f"{i}. [{tipo}] {v.marca} {v.modelo} {v.placa} - {estado} - ${v.valorDia}/día")
-            else: 
-                print(f"{i}. [{tipo}] {v.marca} {v.modelo} {v.numChasis} - {estado} - ${v.valorDia}/día")
-    
-    def rentarVehiculo(self, indice:int, dias:int):
+                print(
+                    f"{i}. [{tipo}] {v.marca} {v.modelo} {v.placa} - {estado} - ${v.valorDia}/día"
+                )
+            else:
+                print(
+                    f"{i}. [{tipo}] {v.marca} {v.modelo} {v.numChasis} - {estado} - ${v.valorDia}/día"
+                )
+
+    def rentarVehiculo(self, indice: int, dias: int):
         if 0 <= indice < len(self.vehiculos):
             costo = self.vehiculos[indice].alquilar(dias)
             if costo is not None:
@@ -58,20 +67,24 @@ class sistemaAlquiler:
                 print("El vehículo ya está alquilado.")
         else:
             print("Índice inválido.")
-    
+
     def devolverVehiculo(self, identificador: str):
         for vehiculo in self.vehiculos:
             if isinstance(vehiculo, (Auto, Moto)) and vehiculo.placa == identificador:
                 if not vehiculo._disponible:
                     vehiculo.devolver()
-                    print(f"Vehículo {vehiculo.marca} {vehiculo.modelo} devuelto con éxito.")
+                    print(
+                        f"Vehículo {vehiculo.marca} {vehiculo.modelo} devuelto con éxito."
+                    )
                 else:
                     print("Este vehículo ya está disponible, no se puede devolver.")
                 return
             elif isinstance(vehiculo, Bici) and vehiculo.numChasis == identificador:
                 if not vehiculo._disponible:
                     vehiculo.devolver()
-                    print(f"Bicicleta {vehiculo.marca} {vehiculo.modelo} devuelta con éxito.")
+                    print(
+                        f"Bicicleta {vehiculo.marca} {vehiculo.modelo} devuelta con éxito."
+                    )
                 else:
                     print("Esta bicicleta ya está disponible, no se puede devolver.")
                 return
@@ -81,10 +94,14 @@ class sistemaAlquiler:
         for i, vehiculo in enumerate(self.vehiculos):
             if isinstance(vehiculo, (Auto, Moto)) and vehiculo.placa == identificador:
                 eliminado = self.vehiculos.pop(i)
-                print(f"Vehículo {eliminado.marca} {eliminado.modelo} {eliminado.placa} eliminado correctamente.")
+                print(
+                    f"Vehículo {eliminado.marca} {eliminado.modelo} {eliminado.placa} eliminado correctamente."
+                )
                 return
             elif isinstance(vehiculo, Bici) and vehiculo.numChasis == identificador:
                 eliminado = self.vehiculos.pop(i)
-                print(f"Bicicleta {eliminado.marca} {eliminado.modelo} {eliminado.numChasis} eliminada correctamente.")
+                print(
+                    f"Bicicleta {eliminado.marca} {eliminado.modelo} {eliminado.numChasis} eliminada correctamente."
+                )
                 return
         print("No se encontró ningún vehículo con ese identificador.")

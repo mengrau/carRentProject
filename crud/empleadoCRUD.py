@@ -65,7 +65,11 @@ class EmpleadoCRUD:
         """
         Obtener un empleado por correo
         """
-        return self.db.query(Empleado).filter(Empleado.email == email.strip().lower()).first()
+        return (
+            self.db.query(Empleado)
+            .filter(Empleado.email == email.strip().lower())
+            .first()
+        )
 
     def obtener_empleados(
         self, skip: int = 0, limit: int = 100, solo_activos: bool = False
@@ -83,9 +87,7 @@ class EmpleadoCRUD:
             query = query.filter(Empleado.activo == True)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_empleado(
-        self, empleado_id: UUID, **kwargs
-    ) -> Optional[Empleado]:
+    def actualizar_empleado(self, empleado_id: UUID, **kwargs) -> Optional[Empleado]:
         """
         Actualizar un empleado con validaciones
 
