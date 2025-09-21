@@ -19,8 +19,8 @@ from entities.contrato import Contrato
 from entities.empleado import Empleado
 from entities.pago import Pago
 from entities.tipoVehiculo import TipoVehiculo
-from entities.usuario import Usuario
 from entities.vehiculo import Vehiculo
+from entities.usuario import Usuario
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

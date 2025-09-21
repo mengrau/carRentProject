@@ -2,6 +2,7 @@
 Entidad Pago
 ============
 """
+
 from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
@@ -12,28 +13,40 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from database.config import Base
 
+
 class Pago(Base):
-    __tablename__ = 'pagos'
-    
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    __tablename__ = "pagos"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
     contrato_id = Column(UUID(as_uuid=True), ForeignKey("contratos.id"), nullable=False)
+    monto = Column(Float, nullable=False)
     fecha_pago = Column(DateTime, default=datetime.now, nullable=False)
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    
+
     contrato = relationship("Contrato", back_populates="pagos")
+
 
 class PagoBase(BaseModel):
     contrato_id: int
     monto: float
     fecha_pago: Optional[datetime] = None
 
+
 class PagoCreate(PagoBase):
     pass
+
 
 class PagoUpdate(BaseModel):
     monto: Optional[float] = None
     fecha_pago: Optional[datetime] = None
+
 
 class PagoResponse(PagoBase):
     id: int

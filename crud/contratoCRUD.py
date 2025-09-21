@@ -76,9 +76,7 @@ class ContratoCRUD:
             query = query.filter(Contrato.activo == True)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_contrato(
-        self, contrato_id: UUID, **kwargs
-    ) -> Optional[Contrato]:
+    def actualizar_contrato(self, contrato_id: UUID, **kwargs) -> Optional[Contrato]:
         """
         Actualizar un contrato con validaciones
 

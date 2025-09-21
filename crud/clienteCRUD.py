@@ -14,7 +14,9 @@ class ClienteCRUD:
     def __init__(self, db: Session):
         self.db = db
 
-    def crear_cliente(self, nombre: str, email: str, telefono: Optional[str] = None) -> Cliente:
+    def crear_cliente(
+        self, nombre: str, email: str, telefono: Optional[str] = None
+    ) -> Cliente:
         """
         Crear un nuevo cliente con validaciones
 
@@ -62,7 +64,11 @@ class ClienteCRUD:
         """
         Obtener un cliente por correo
         """
-        return self.db.query(Cliente).filter(Cliente.email == email.strip().lower()).first()
+        return (
+            self.db.query(Cliente)
+            .filter(Cliente.email == email.strip().lower())
+            .first()
+        )
 
     def obtener_clientes(self, skip: int = 0, limit: int = 100) -> List[Cliente]:
         """
