@@ -25,6 +25,7 @@ class Pago(Base):
         nullable=False,
     )
     contrato_id = Column(UUID(as_uuid=True), ForeignKey("contratos.id"), nullable=False)
+    monto = Column(Float, nullable=False)
     fecha_pago = Column(DateTime, default=datetime.now, nullable=False)
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)

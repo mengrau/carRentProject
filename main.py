@@ -11,6 +11,7 @@ import crud
 from database.config import SessionLocal, create_tables
 from entities.usuario import Usuario
 from uuid import UUID
+from datetime import datetime
 
 
 class SistemaGestion:
@@ -80,8 +81,6 @@ class SistemaGestion:
                     self.mostrar_menu_tipos_vehiculo()
                 elif opcion == "6":
                     self.mostrar_menu_contratos()
-                elif opcion == "7":
-                    self.mostrar_menu_pagos()
                 elif opcion == "0":
                     print("Saliendo del sistema...")
                     break
@@ -101,7 +100,6 @@ class SistemaGestion:
         print("4. Gestion de Vehiculos")
         print("5. Gestion de Tipos de Vehiculos")
         print("6. Gestion de Contratos")
-        print("7. Gestion de Pagos")
         print("0. Salir")
         print("=" * 50)
 
@@ -434,13 +432,203 @@ class SistemaGestion:
 
     # ---------------- CONTRATOS ----------------
     def mostrar_menu_contratos(self):
-        print("\n--- GESTION DE CONTRATOS ---")
-        print("(Implementar CRUD completo segun ContratoCRUD)")
+        while True:
+            print("\n--- GESTION DE CONTRATOS ---")
+            print("1. Crear Contrato (con pago obligatorio)")
+            print("2. Listar Contratos")
+            print("3. Obtener Contrato por ID")
+            print("4. Actualizar Contrato")
+            print("5. Eliminar Contrato")
+            print("6. Gestionar Pagos de un Contrato")
+            print("0. Volver")
+            opcion = input("Seleccione: ").strip()
 
-    # ---------------- PAGOS ----------------
+            if opcion == "1":
+                try:
+                    cliente_id = UUID(input("ID Cliente: ").strip())
+                    vehiculo_id = UUID(input("ID Vehículo: ").strip())
+                    empleado_id = UUID(input("ID Empleado: ").strip())
+                    fecha_inicio = datetime.fromisoformat(
+                        input("Fecha inicio (YYYY-MM-DD): ").strip()
+                    )
+                    fecha_fin_input = input(
+                        "Fecha fin (YYYY-MM-DD, opcional): "
+                    ).strip()
+                    fecha_fin = (
+                        datetime.fromisoformat(fecha_fin_input)
+                        if fecha_fin_input
+                        else None
+                    )
+
+                    contrato = self.contrato_crud.crear_contrato(
+                        cliente_id=cliente_id,
+                        vehiculo_id=vehiculo_id,
+                        empleado_id=empleado_id,
+                        fecha_inicio=fecha_inicio,
+                        fecha_fin=fecha_fin,
+                    )
+                    print("Contrato creado:", contrato)
+
+                    monto = float(
+                        input("Monto inicial del contrato (obligatorio): ").strip()
+                    )
+                    fecha_pago_input = input(
+                        "Fecha del pago (YYYY-MM-DD, opcional): "
+                    ).strip()
+                    fecha_pago = (
+                        datetime.fromisoformat(fecha_pago_input)
+                        if fecha_pago_input
+                        else None
+                    )
+                    pago = self.pago_crud.crear_pago(
+                        contrato_id=contrato.id, monto=monto, fecha_pago=fecha_pago
+                    )
+                    print("Pago registrado automáticamente:", pago)
+
+                except Exception as e:
+                    print("ERROR:", str(e))
+
+            elif opcion == "2":
+                try:
+                    activos_input = input("¿Solo activos? (s/n): ").strip().lower()
+                    solo_activos = activos_input == "s"
+                    contratos = self.contrato_crud.obtener_contratos(
+                        solo_activos=solo_activos
+                    )
+                    for c in contratos:
+                        print(
+                            f"{c.id} - Cliente: {c.cliente_id} - Vehículo: {c.vehiculo_id} "
+                            f"- Empleado: {c.empleado_id} - Inicio: {c.fecha_inicio} "
+                            f"- Fin: {c.fecha_fin or 'N/A'} - {'Activo' if c.activo else 'Inactivo'}"
+                        )
+                except Exception as e:
+                    print("ERROR:", str(e))
+
+            elif opcion == "3":
+                try:
+                    cid = UUID(input("ID Contrato: ").strip())
+                    contrato = self.contrato_crud.obtener_contrato(cid)
+                    if contrato:
+                        print(
+                            f"{contrato.id} - Cliente: {contrato.cliente_id} - Vehículo: {contrato.vehiculo_id} "
+                            f"- Empleado: {contrato.empleado_id} - Inicio: {contrato.fecha_inicio} "
+                            f"- Fin: {contrato.fecha_fin or 'N/A'} - {'Activo' if contrato.activo else 'Inactivo'}"
+                        )
+                        pagos = self.pago_crud.obtener_pagos(contrato_id=contrato.id)
+                        if pagos:
+                            print("Pagos asociados:")
+                            for p in pagos:
+                                print(
+                                    f"   Pago {p.id} - Monto: {p.monto} - Fecha: {p.fecha_pago}"
+                                )
+                        else:
+                            print("   No hay pagos registrados.")
+                    else:
+                        print("Contrato no encontrado")
+                except Exception:
+                    print("ERROR: ID inválido, debe ser UUID")
+
+            elif opcion == "4":
+                try:
+                    cid = UUID(input("ID Contrato: ").strip())
+                    nuevo_inicio = input(
+                        "Nueva fecha inicio (YYYY-MM-DD, opcional): "
+                    ).strip()
+                    nuevo_fin = input(
+                        "Nueva fecha fin (YYYY-MM-DD, opcional): "
+                    ).strip()
+                    nuevo_activo_input = (
+                        input("¿Activo? (s/n, vacío = no cambiar): ").strip().lower()
+                    )
+
+                    kwargs = {}
+                    if nuevo_inicio:
+                        kwargs["fecha_inicio"] = datetime.fromisoformat(nuevo_inicio)
+                    if nuevo_fin:
+                        kwargs["fecha_fin"] = datetime.fromisoformat(nuevo_fin)
+                    if nuevo_activo_input == "s":
+                        kwargs["activo"] = True
+                    elif nuevo_activo_input == "n":
+                        kwargs["activo"] = False
+
+                    contrato = self.contrato_crud.actualizar_contrato(cid, **kwargs)
+                    if contrato:
+                        print("Contrato actualizado:", contrato)
+                    else:
+                        print("Contrato no encontrado")
+                except Exception as e:
+                    print("ERROR:", str(e))
+
+            elif opcion == "5":
+                try:
+                    cid = UUID(input("ID Contrato: ").strip())
+                    if self.contrato_crud.eliminar_contrato(cid):
+                        print("Contrato eliminado")
+                    else:
+                        print("Contrato no encontrado")
+                except Exception:
+                    print("ERROR: ID inválido, debe ser UUID")
+
+            elif opcion == "6":
+                self.mostrar_menu_pagos()
+
+            elif opcion == "0":
+                break
+            else:
+                print("Opción inválida")
+
     def mostrar_menu_pagos(self):
         print("\n--- GESTION DE PAGOS ---")
-        print("(Implementar CRUD completo segun PagoCRUD)")
+        print("1. Listar Pagos de un Contrato")
+        print("2. Actualizar Pago")
+        print("3. Eliminar Pago")
+        print("0. Volver")
+        opcion = input("Seleccione: ").strip()
+
+        if opcion == "1":
+            try:
+                contrato_id = UUID(input("ID Contrato: ").strip())
+                pagos = self.pago_crud.obtener_pagos(contrato_id=contrato_id)
+                if pagos:
+                    for p in pagos:
+                        print(f"{p.id} - Monto: {p.monto} - Fecha: {p.fecha_pago}")
+                else:
+                    print("No hay pagos para este contrato")
+            except Exception as e:
+                print("ERROR:", str(e))
+
+        elif opcion == "2":
+            try:
+                pago_id = UUID(input("ID Pago: ").strip())
+                nuevo_monto = input("Nuevo monto (opcional): ").strip()
+                nueva_fecha = input("Nueva fecha (YYYY-MM-DD, opcional): ").strip()
+                kwargs = {}
+                if nuevo_monto:
+                    kwargs["monto"] = float(nuevo_monto)
+                if nueva_fecha:
+                    kwargs["fecha_pago"] = datetime.fromisoformat(nueva_fecha)
+                pago = self.pago_crud.actualizar_pago(pago_id, **kwargs)
+                if pago:
+                    print("Pago actualizado:", pago)
+                else:
+                    print("Pago no encontrado")
+            except Exception as e:
+                print("ERROR:", str(e))
+
+        elif opcion == "3":
+            try:
+                pago_id = UUID(input("ID Pago: ").strip())
+                if self.pago_crud.eliminar_pago(pago_id):
+                    print("Pago eliminado")
+                else:
+                    print("Pago no encontrado")
+            except Exception:
+                print("ERROR: ID inválido, debe ser UUID")
+
+        elif opcion == "0":
+            return
+        else:
+            print("Opción inválida")
 
 
 def main():
