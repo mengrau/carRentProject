@@ -3,15 +3,14 @@ SQLAlchemy==2.0.23
 alembic==1.12.1
 
 # Database Drivers
-psycopg2-binary==2.9.9  # PostgreSQL
-PyMySQL==1.1.0          # MySQL
-
+psycopg2-binary==2.9.10  # PostgreSQL
+PyMySQL==1.1.0           # MySQL
 
 # Data Validation and Serialization
-pydantic==2.5.0
+pydantic==2.9.2
 email-validator==2.1.0
 
 # Additional Utilities
-python-dotenv==1.0.0    # Environment variables
-typing-extensions==4.8.0  # Type hints support
-passlib[bcrypt]==1.7.4  #Hashing passwords
+python-dotenv==1.0.0     # Environment variables
+typing-extensions>=4.12.2  # Type hints support
+passlib[bcrypt]==1.7.4   # Hashing passwords

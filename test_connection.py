@@ -71,6 +71,7 @@ def test_tables():
         # Importar los modelos para que SQLAlchemy los registre
 
         import entities
+
         # ... importa todos los modelos necesarios
 
         from database.config import create_tables
@@ -85,14 +86,13 @@ def test_tables():
     return True
 
 
-
 def create_admin_user():
     """Crear usuario administrador por defecto"""
     print("\n=== CREANDO USUARIO ADMINISTRADOR ===\n")
 
     try:
         from database.config import SessionLocal
-        from entities.usuario import Usuario, hash_password, RolEnum 
+        from entities.usuario import Usuario, hash_password, RolEnum
 
         db = SessionLocal()
 
@@ -107,9 +107,9 @@ def create_admin_user():
         # Crear usuario admin
         admin_user = Usuario(
             username="admin",
-            password_hash=hash_password("admin123"),  
+            password_hash=hash_password("admin123"),
             rol=RolEnum.admin,
-            estado=True
+            estado=True,
         )
 
         db.add(admin_user)
@@ -118,7 +118,7 @@ def create_admin_user():
 
         print(f"[OK] Usuario administrador creado exitosamente")
         print(f"     ID: {admin_user.id}")
-        print(f"     Rol: {admin_user.rol.value}")  
+        print(f"     Rol: {admin_user.rol.value}")
         print(f"     Nombre: {admin_user.username}")
 
         db.close()
@@ -127,7 +127,6 @@ def create_admin_user():
     except Exception as e:
         print(f"[ERROR] Error creando usuario administrador: {e}")
         return False
-
 
 
 if __name__ == "__main__":

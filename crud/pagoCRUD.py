@@ -66,9 +66,7 @@ class PagoCRUD:
             query = query.filter(Pago.contrato_id == contrato_id)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_pago(
-        self, pago_id: UUID, **kwargs
-    ) -> Optional[Pago]:
+    def actualizar_pago(self, pago_id: UUID, **kwargs) -> Optional[Pago]:
         """
         Actualizar un pago con validaciones
 
