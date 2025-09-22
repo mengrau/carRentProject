@@ -4,6 +4,7 @@ CRUD de Usuario
 """
 
 from sqlalchemy.orm import Session
+from uuid import UUID
 from entities.usuario import Usuario, RolEnum
 from typing import Optional
 
@@ -18,11 +19,17 @@ class UsuarioCRUD:
         self,
         username: str,
         password: str,
+        id_usuario_creacion: UUID,
         rol: RolEnum = RolEnum.admin,
         estado: bool = True,
     ) -> Usuario:
         """Crear un nuevo usuario"""
-        usuario = Usuario(username=username, rol=rol, estado=estado)
+        usuario = Usuario(
+            username=username,
+            id_usuario_creacion=id_usuario_creacion,
+            rol=rol,
+            estado=estado,
+        )
         usuario.set_password(password)
         self.db.add(usuario)
         self.db.commit()
@@ -38,7 +45,9 @@ class UsuarioCRUD:
     def obtener_usuarios(self) -> list[Usuario]:
         return self.db.query(Usuario).all()
 
-    def actualizar_usuario(self, usuario_id: str, **kwargs) -> Optional[Usuario]:
+    def actualizar_usuario(
+        self, usuario_id: str, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Usuario]:
         """Actualizar campos de un usuario"""
         usuario = self.obtener_usuario_por_id(usuario_id)
         if not usuario:
@@ -51,6 +60,7 @@ class UsuarioCRUD:
             if hasattr(usuario, key) and value is not None:
                 setattr(usuario, key, value)
 
+        usuario.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(usuario)
         return usuario

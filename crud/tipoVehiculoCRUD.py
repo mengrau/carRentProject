@@ -13,7 +13,11 @@ class TipoVehiculoCRUD:
         self.db = db
 
     def crear_tipo_vehiculo(
-        self, nombre: str, descripcion: str = None, activo: bool = True
+        self,
+        nombre: str,
+        id_usuario_cracion: UUID,
+        descripcion: str = None,
+        activo: bool = True,
     ) -> TipoVehiculo:
         """
         Crear un nuevo tipo de vehículo con validaciones
@@ -40,6 +44,7 @@ class TipoVehiculoCRUD:
 
         tipo = TipoVehiculo(
             nombre=nombre.strip().title(),
+            id_usuario_cracion=id_usuario_cracion,
             descripcion=descripcion.strip() if descripcion else None,
             activo=activo,
         )
@@ -74,7 +79,7 @@ class TipoVehiculoCRUD:
         return self.db.query(TipoVehiculo).offset(skip).limit(limit).all()
 
     def actualizar_tipo_vehiculo(
-        self, tipo_id: UUID, **kwargs
+        self, tipo_id: UUID, id_usuario_edicion: UUID, **kwargs
     ) -> Optional[TipoVehiculo]:
         """
         Actualizar un tipo de vehículo con validaciones
@@ -103,6 +108,7 @@ class TipoVehiculoCRUD:
             if hasattr(tipo, key):
                 setattr(tipo, key, value)
 
+        TipoVehiculo.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(tipo)
         return tipo
