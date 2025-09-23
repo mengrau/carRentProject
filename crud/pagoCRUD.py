@@ -15,7 +15,11 @@ class PagoCRUD:
         self.db = db
 
     def crear_pago(
-        self, contrato_id: UUID, monto: float, fecha_pago: Optional[datetime] = None
+        self,
+        contrato_id: UUID,
+        monto: float,
+        id_usuario_creacion: UUID,
+        fecha_pago: Optional[datetime] = None,
     ) -> Pago:
         """
         Crear un nuevo pago con validaciones
@@ -37,6 +41,7 @@ class PagoCRUD:
         pago = Pago(
             contrato_id=contrato_id,
             monto=monto,
+            id_usuario_creacion=id_usuario_creacion,
             fecha_pago=fecha_pago if fecha_pago else datetime.now(),
         )
         self.db.add(pago)
@@ -66,7 +71,9 @@ class PagoCRUD:
             query = query.filter(Pago.contrato_id == contrato_id)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_pago(self, pago_id: UUID, **kwargs) -> Optional[Pago]:
+    def actualizar_pago(
+        self, pago_id: UUID, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Pago]:
         """
         Actualizar un pago con validaciones
 
@@ -89,6 +96,7 @@ class PagoCRUD:
             if hasattr(pago, key) and value is not None:
                 setattr(pago, key, value)
 
+        pago.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(pago)
         return pago

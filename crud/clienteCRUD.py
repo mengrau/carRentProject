@@ -15,7 +15,11 @@ class ClienteCRUD:
         self.db = db
 
     def crear_cliente(
-        self, nombre: str, email: str, telefono: Optional[str] = None
+        self,
+        nombre: str,
+        email: str,
+        telefono: Optional[str] = None,
+        id_usuario_creacion: str = None,
     ) -> Cliente:
         """
         Crear un nuevo cliente con validaciones
@@ -41,6 +45,7 @@ class ClienteCRUD:
             nombre=nombre.strip().title(),
             email=email.strip().lower(),
             telefono=telefono.strip() if telefono else None,
+            id_usuario_creacion=id_usuario_creacion,
             activo=True,
         )
 
@@ -76,7 +81,9 @@ class ClienteCRUD:
         """
         return self.db.query(Cliente).offset(skip).limit(limit).all()
 
-    def actualizar_cliente(self, cliente_id: UUID, **kwargs) -> Optional[Cliente]:
+    def actualizar_cliente(
+        self, cliente_id: UUID, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Cliente]:
         """
         Actualizar un cliente con validaciones
 
@@ -105,6 +112,7 @@ class ClienteCRUD:
             if hasattr(cliente, key) and value is not None:
                 setattr(cliente, key, value)
 
+        cliente.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(cliente)
         return cliente
