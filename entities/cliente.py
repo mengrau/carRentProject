@@ -15,6 +15,31 @@ from database.config import Base
 
 
 class Cliente(Base):
+    """
+    Modelo de la tabla clientes
+
+    Representa a un cliente dentro del sistema, incluyendo sus datos de
+    identificación y de contacto, ademas de la trazabilidad de su
+    creacion y edicion.
+
+    Atributos:
+        id (UUID): Identificador unico del cliente.
+        nombre (str): Nombre completo del cliente.
+        email (str): Correo electronico unico del cliente.
+        telefono (str, opcional): Numero de telefono de contacto.
+        activo (bool): Estado del cliente (activo o inactivo).
+
+        id_usuario_creacion (UUID): Usuario que creó el registro.
+        id_usuario_edicion (UUID, opcional): Ultimo usuario que editó el registro.
+        fecha_creacion (datetime): Fecha de creación del registro.
+        fecha_actualizacion (datetime): Ultima fecha de actualización del registro.
+
+    Relaciones:
+        usuario_creador (Usuario): Relación con el usuario que creó el cliente.
+        usuario_editor (Usuario): Relación con el usuario que lo editó.
+        contratos (list[Contrato]): Lista de contratos asociados al cliente.
+    """
+
     __tablename__ = "clientes"
 
     id = Column(

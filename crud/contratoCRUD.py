@@ -7,6 +7,7 @@ from uuid import UUID
 from datetime import datetime
 
 from entities.contrato import Contrato
+from entities.vehiculo import Vehiculo
 from sqlalchemy.orm import Session
 
 
@@ -24,12 +25,13 @@ class ContratoCRUD:
         fecha_fin: Optional[datetime] = None,
     ) -> Contrato:
         """
-        Crear un nuevo contrato con validaciones
+        Crear un nuevo contrato con validaciones y marcar el vehículo como no disponible
 
         Args:
             cliente_id: UUID del cliente
             vehiculo_id: UUID del vehículo
             empleado_id: UUID del empleado
+            id_usuario_creacion: Usuario que crea el contrato
             fecha_inicio: Fecha de inicio del contrato
             fecha_fin: Fecha opcional de fin del contrato
 
@@ -37,10 +39,16 @@ class ContratoCRUD:
             Contrato creado
 
         Raises:
-            ValueError: Si los datos no son válidos
+            ValueError: Si los datos no son válidos o el vehículo no está disponible
         """
         if fecha_fin and fecha_fin < fecha_inicio:
             raise ValueError("La fecha de fin no puede ser anterior a la de inicio")
+
+        vehiculo = self.db.query(Vehiculo).filter(Vehiculo.id == vehiculo_id).first()
+        if not vehiculo:
+            raise ValueError("El vehículo no existe")
+        if not vehiculo.disponible:
+            raise ValueError("El vehículo no está disponible para contrato")
 
         contrato = Contrato(
             cliente_id=cliente_id,
@@ -51,6 +59,10 @@ class ContratoCRUD:
             fecha_fin=fecha_fin,
             activo=True,
         )
+
+        vehiculo.disponible = False
+        vehiculo.id_usuario_edicion = id_usuario_creacion
+
         self.db.add(contrato)
         self.db.commit()
         self.db.refresh(contrato)
@@ -114,13 +126,23 @@ class ContratoCRUD:
 
     def eliminar_contrato(self, contrato_id: UUID) -> bool:
         """
-        Eliminar un contrato
+        Eliminar un contrato y marcar el vehiculo como disponible
 
         Returns:
             True si se eliminó, False si no existe
         """
         contrato = self.obtener_contrato(contrato_id)
         if contrato:
+
+            vehiculo = (
+                self.db.query(Vehiculo)
+                .filter(Vehiculo.id == contrato.vehiculo_id)
+                .first()
+            )
+            if vehiculo:
+                vehiculo.disponible = True
+                vehiculo.id_usuario_edicion = contrato.id_usuario_creacion
+
             self.db.delete(contrato)
             self.db.commit()
             return True

@@ -1,6 +1,5 @@
 """
-CRUD de Usuario
-===============
+Operaciones CRUD para Usuario
 """
 
 from sqlalchemy.orm import Session
@@ -23,7 +22,22 @@ class UsuarioCRUD:
         rol: RolEnum = RolEnum.admin,
         estado: bool = True,
     ) -> Usuario:
-        """Crear un nuevo usuario"""
+        """
+        Crear un nuevo usuario con validaciones
+
+        Args:
+            username: Nombre de usuario (único y obligatorio, máx 50 caracteres)
+            password: Contraseña en texto plano (se guarda como hash)
+            id_usuario_creacion: UUID del usuario que crea el registro (obligatorio)
+            rol: Rol asignado al usuario (default RolEnum.admin)
+            estado: Estado de activacion del usuario (default True)
+
+        Returns:
+            Usuario creado con la contraseña encriptada
+
+        Raises:
+            ValueError: Si los datos no son válidos
+        """
         usuario = Usuario(
             username=username,
             id_usuario_creacion=id_usuario_creacion,
