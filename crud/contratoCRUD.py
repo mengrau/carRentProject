@@ -98,10 +98,14 @@ class ContratoCRUD:
 
         Args:
             contrato_id: UUID del contrato
+            id_usuario_edicion: UUID del usuario que edita
             kwargs: Campos a actualizar
 
         Returns:
             Contrato actualizado o None
+
+        Raises:
+            ValueError: Si las fechas no son válidas
         """
         contrato = self.obtener_contrato(contrato_id)
         if not contrato:
@@ -118,6 +122,10 @@ class ContratoCRUD:
         for key, value in kwargs.items():
             if hasattr(contrato, key) and value is not None:
                 setattr(contrato, key, value)
+
+        if "activo" in kwargs and kwargs["activo"] is False:
+            if contrato.vehiculo:
+                contrato.vehiculo.disponible = True
 
         contrato.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
