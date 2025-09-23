@@ -15,7 +15,7 @@ class TipoVehiculoCRUD:
     def crear_tipo_vehiculo(
         self,
         nombre: str,
-        id_usuario_cracion: UUID,
+        id_usuario_creacion: UUID,
         descripcion: str = None,
         activo: bool = True,
     ) -> TipoVehiculo:
@@ -44,7 +44,7 @@ class TipoVehiculoCRUD:
 
         tipo = TipoVehiculo(
             nombre=nombre.strip().title(),
-            id_usuario_cracion=id_usuario_cracion,
+            id_usuario_creacion=id_usuario_creacion,
             descripcion=descripcion.strip() if descripcion else None,
             activo=activo,
         )
