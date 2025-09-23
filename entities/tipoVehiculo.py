@@ -1,8 +1,6 @@
 """
 Entidad TipoVehiculo
 ====================
-
-Modelo de TipoVehiculo con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey
@@ -18,15 +16,27 @@ from database.config import Base
 
 class TipoVehiculo(Base):
     """
-    Modelo de TipoVehiculo que representa la tabla 'tipos_vehiculo'
+    Modelo de la tabla tipos_vehiculo
+
+    Representa una categoria de vehiculo dentro del sistema. Define el
+    nombre y una descripcion opcional, ademas de la trazabilidad de su
+    creacion y edicion.
 
     Atributos:
-        id: Identificador único del tipo de vehículo
-        nombre: Nombre del tipo de vehículo (ej. Auto, Moto, Bici)
-        descripcion: Descripción del tipo de vehículo
-        activo: Estado del tipo de vehículo
-        fecha_creacion: Fecha y hora de creación
-        fecha_actualizacion: Fecha y hora de última actualización
+        id (UUID): Identificador unico del tipo de vehiculo.
+        nombre (str): Nombre unico del tipo de vehiculo.
+        descripcion (str, opcional): Texto descriptivo sobre el tipo de vehiculo.
+        activo (bool): Estado del registro (activo o inactivo).
+
+        id_usuario_creacion (UUID): Usuario que realizo la creacion del registro.
+        id_usuario_edicion (UUID, opcional): Usuario que realizo la ultima edicion.
+        fecha_creacion (datetime): Fecha en que fue creado el registro.
+        fecha_actualizacion (datetime): Fecha en que se actualizo por ultima vez.
+
+    Relaciones:
+        usuario_creador (Usuario): Usuario que realizo la creacion.
+        usuario_editor (Usuario): Usuario que realizo la edicion.
+        vehiculos (list[Vehiculo]): Vehiculos asociados a este tipo.
     """
 
     __tablename__ = "tipos_vehiculo"
@@ -51,7 +61,6 @@ class TipoVehiculo(Base):
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    # Relaciones
     usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     vehiculos = relationship(
@@ -76,9 +85,6 @@ class TipoVehiculo(Base):
                 else None
             ),
         }
-
-
-# ===== Pydantic Schemas =====
 
 
 class TipoVehiculoBase(BaseModel):

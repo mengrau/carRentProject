@@ -24,7 +24,6 @@ def create_admin_user():
 
         db = SessionLocal()
 
-        # Verificar si ya existe un admin (buscando por rol)
         admin_exists = db.query(Usuario).filter(Usuario.rol == RolEnum.admin).first()
 
         if admin_exists:
@@ -32,7 +31,6 @@ def create_admin_user():
             db.close()
             return True
 
-        # Crear usuario admin
         admin_user = Usuario(
             username="admin",
             id_usuario_creacion=None,
@@ -78,7 +76,6 @@ class SistemaGestion:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.db.close()
 
-    # ---------------- LOGIN ----------------
     def mostrar_pantalla_login(self) -> bool:
         print("\n" + "=" * 50)
         print("        SISTEMA DE GESTION GENERAL")
@@ -134,7 +131,6 @@ class SistemaGestion:
         finally:
             self.db.close()
 
-    # ---------------- MENÚ PRINCIPAL ----------------
     def mostrar_menu_principal(self):
         print("\n" + "=" * 50)
         print("         MENU PRINCIPAL")
@@ -148,7 +144,6 @@ class SistemaGestion:
         print("0. Salir")
         print("=" * 50)
 
-    # ---------------- USUARIOS ----------------
     def mostrar_menu_usuarios(self):
         print("\n--- GESTION DE USUARIOS ---")
         print("1. Crear Usuario")
@@ -222,7 +217,6 @@ class SistemaGestion:
         else:
             print("Opción no válida, intente de nuevo")
 
-    # ---------------- CLIENTES ----------------
     def mostrar_menu_clientes(self):
         print("\n--- GESTION DE CLIENTES ---")
         print("1. Crear Cliente")
@@ -243,7 +237,7 @@ class SistemaGestion:
                     telefono=telefono,
                     id_usuario_creacion=self.usuario_actual.id,
                 )
-                print("Cliente creado:", cliente)
+                print("Cliente creado")
             except ValueError as e:
                 print("ERROR:", str(e))
 
@@ -273,7 +267,7 @@ class SistemaGestion:
                         email=nuevo_email,
                         telefono=nuevo_telefono,
                     )
-                    print("Cliente actualizado:", cliente)
+                    print("Cliente actualizado")
 
             except ValueError as e:
                 print("ERROR:", str(e))
@@ -289,7 +283,6 @@ class SistemaGestion:
         else:
             print("Opción no válida, intente de nuevo")
 
-    # ---------------- EMPLEADOS ----------------
     def mostrar_menu_empleados(self):
         print("\n--- GESTION DE EMPLEADOS ---")
         print("1. Crear Empleado")
@@ -312,7 +305,7 @@ class SistemaGestion:
                     rol=rol,
                     activo=activo,
                 )
-                print("Empleado creado:", empleado)
+                print("Empleado creado")
             except ValueError as e:
                 print("ERROR:", str(e))
 
@@ -362,7 +355,7 @@ class SistemaGestion:
                         activo=nuevo_activo,
                     )
                     if empleado:
-                        print("Empleado actualizado:", empleado)
+                        print("Empleado actualizado")
                     else:
                         print("Error al actualizar empleado")
             except ValueError as e:
@@ -395,7 +388,6 @@ class SistemaGestion:
         else:
             print("Opción no válida, intente de nuevo")
 
-    # ---------------- VEHICULOS ----------------
     def mostrar_menu_vehiculos(self):
         print("\n--- GESTION DE VEHICULOS ---")
         print("1. Crear Vehículo")
@@ -423,7 +415,7 @@ class SistemaGestion:
                         placa=placa,
                         disponible=disponible,
                     )
-                    print("Vehículo creado:", vehiculo)
+                    print("Vehículo creado")
                 except ValueError as e:
                     print("ERROR:", str(e))
             except Exception:
@@ -470,7 +462,7 @@ class SistemaGestion:
                         placa=nueva_placa,
                         disponible=nuevo_disponible,
                     )
-                    print("Vehículo actualizado:", vehiculo)
+                    print("Vehículo actualizado")
 
             except ValueError as e:
                 print("ERROR:", str(e))
@@ -497,7 +489,6 @@ class SistemaGestion:
         else:
             print("Opción no válida, intente de nuevo")
 
-    # ---------------- TIPO VEHICULOS ----------------
     def mostrar_menu_tipos_vehiculo(self):
         print("\n--- GESTION DE TIPOS DE VEHICULO ---")
         print("1. Crear Tipo de Vehículo")
@@ -514,11 +505,11 @@ class SistemaGestion:
             try:
                 tipo = self.tipo_vehiculo_crud.crear_tipo_vehiculo(
                     nombre=nombre,
-                    id_usuario_cracion=self.usuario_actual.id,
+                    id_usuario_creacion=self.usuario_actual.id,
                     descripcion=descripcion,
                     activo=activo,
                 )
-                print("Tipo de Vehículo creado:", tipo)
+                print("Tipo de Vehículo creado")
             except ValueError as e:
                 print("ERROR:", str(e))
 
@@ -554,7 +545,7 @@ class SistemaGestion:
                     activo=nuevo_activo,
                 )
                 if tipo:
-                    print("Tipo de Vehículo actualizado:", tipo)
+                    print("Tipo de Vehículo actualizado")
                 else:
                     print("Tipo de Vehículo no encontrado")
             except ValueError as e:
@@ -578,11 +569,10 @@ class SistemaGestion:
         else:
             print("Opción no válida, intente de nuevo")
 
-    # ---------------- CONTRATOS ----------------
     def mostrar_menu_contratos(self):
 
         print("\n--- GESTION DE CONTRATOS ---")
-        print("1. Crear Contrato (con pago obligatorio)")
+        print("1. Crear Contrato")
         print("2. Listar Contratos")
         print("3. Obtener Contrato por ID")
         print("4. Actualizar Contrato")
@@ -593,9 +583,24 @@ class SistemaGestion:
 
         if opcion == "1":
             try:
-                cliente_id = UUID(input("ID Cliente: ").strip())
-                vehiculo_id = UUID(input("ID Vehículo: ").strip())
-                empleado_id = UUID(input("ID Empleado: ").strip())
+                email_cliente = input("Email Cliente: ").strip()
+                cliente = self.cliente_crud.obtener_cliente_por_email(email_cliente)
+                if not cliente:
+                    print("Cliente no encontrado con ese correo")
+                    return
+
+                placa = input("Placa Vehículo: ").strip()
+                vehiculo = self.vehiculo_crud.obtener_vehiculo_por_placa(placa)
+                if not vehiculo:
+                    print("Vehículo no encontrado con esa placa")
+                    return
+
+                email_empleado = input("Email Empleado: ").strip()
+                empleado = self.empleado_crud.obtener_empleado_por_email(email_empleado)
+                if not empleado:
+                    print("Empleado no encontrado con ese correo")
+                    return
+
                 fecha_inicio = datetime.fromisoformat(
                     input("Fecha inicio (YYYY-MM-DD): ").strip()
                 )
@@ -605,14 +610,14 @@ class SistemaGestion:
                 )
 
                 contrato = self.contrato_crud.crear_contrato(
-                    cliente_id=cliente_id,
-                    vehiculo_id=vehiculo_id,
-                    empleado_id=empleado_id,
+                    cliente_id=cliente.id,
+                    vehiculo_id=vehiculo.id,
+                    empleado_id=empleado.id,
                     id_usuario_creacion=self.usuario_actual.id,
                     fecha_inicio=fecha_inicio,
                     fecha_fin=fecha_fin,
                 )
-                print("Contrato creado:", contrato)
+                print("Contrato creado")
 
                 monto = float(
                     input("Monto inicial del contrato (obligatorio): ").strip()
@@ -626,7 +631,10 @@ class SistemaGestion:
                     else None
                 )
                 pago = self.pago_crud.crear_pago(
-                    contrato_id=contrato.id, monto=monto, fecha_pago=fecha_pago
+                    contrato_id=contrato.id,
+                    monto=monto,
+                    id_usuario_creacion=self.usuario_actual.id,
+                    fecha_pago=fecha_pago,
                 )
                 print("Pago registrado automáticamente:", pago)
 
@@ -667,7 +675,7 @@ class SistemaGestion:
                                 f"   Pago {p.id} - Monto: {p.monto} - Fecha: {p.fecha_pago}"
                             )
                     else:
-                        print("   No hay pagos registrados.")
+                        print("No hay pagos registrados.")
                 else:
                     print("Contrato no encontrado")
             except Exception:
@@ -698,7 +706,7 @@ class SistemaGestion:
                     cid, id_usuario_edicion=self.usuario_actual.id, **kwargs
                 )
                 if contrato:
-                    print("Contrato actualizado:", contrato)
+                    print("Contrato actualizado")
                 else:
                     print("Contrato no encontrado")
             except Exception as e:
@@ -722,7 +730,6 @@ class SistemaGestion:
         else:
             print("Opción inválida")
 
-    # ---------------- PAGOS ----------------
     def mostrar_menu_pagos(self):
         print("\n--- GESTION DE PAGOS ---")
         print("1. Listar Pagos de un Contrato")
@@ -757,7 +764,7 @@ class SistemaGestion:
                     pago_id, id_usuario_edicion=self.usuario_actual.id, **kwargs
                 )
                 if pago:
-                    print("Pago actualizado:", pago)
+                    print("Pago actualizado")
                 else:
                     print("Pago no encontrado")
             except Exception as e:

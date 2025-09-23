@@ -15,6 +15,32 @@ from database.config import Base
 
 
 class Vehiculo(Base):
+    """
+    Modelo de la tabla vehiculos
+
+    Representa un vehiculo registrado en el sistema, con informacion basica de
+    identificacion, disponibilidad y trazabilidad de creacion y edicion.
+
+    Atributos:
+        id (UUID): Identificador unico del vehiculo.
+        tipo_id (UUID): Referencia al tipo de vehiculo asociado.
+        marca (str): Marca del vehiculo.
+        modelo (str): Modelo del vehiculo.
+        placa (str): Placa unica del vehiculo.
+        disponible (bool): Indica si el vehiculo esta disponible.
+
+        id_usuario_creacion (UUID): Usuario que realizo la creacion del registro.
+        id_usuario_edicion (UUID, opcional): Usuario que realizo la ultima edicion.
+        fecha_creacion (datetime): Fecha en que fue creado el registro.
+        fecha_actualizacion (datetime): Fecha en que se actualizo por ultima vez.
+
+    Relaciones:
+        usuario_creador (Usuario): Usuario que realizo la creacion.
+        usuario_editor (Usuario): Usuario que realizo la edicion.
+        tipo_vehiculo (TipoVehiculo): Tipo al que pertenece el vehiculo.
+        contratos (list[Contrato]): Contratos asociados al vehiculo.
+    """
+
     __tablename__ = "vehiculos"
 
     id = Column(
@@ -41,7 +67,6 @@ class Vehiculo(Base):
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    # Relaciones
     usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     tipo_vehiculo = relationship("TipoVehiculo", back_populates="vehiculos")
@@ -53,16 +78,13 @@ class Vehiculo(Base):
         return f"<Vehiculo(marca='{self.marca}', modelo='{self.modelo}', placa='{self.placa}, disponible={self.disponible})>"
 
 
-# ====== Pydantic Schemas ======
-
-
 class VehiculoBase(BaseModel):
     marca: str
     modelo: str
     placa: Optional[str] = None
     disponible: bool = True
     categoria_id: int
-    tipo_id: int  # <--- ahora también forma parte del esquema
+    tipo_id: int
 
     @validator("marca", "modelo")
     def no_vacios(cls, v):
@@ -71,19 +93,13 @@ class VehiculoBase(BaseModel):
         return v.strip().title()
 
 
-class VehiculoCreate(VehiculoBase):
-    """Esquema para crear un vehículo"""
-
-    pass
-
-
 class VehiculoUpdate(BaseModel):
     marca: Optional[str] = None
     modelo: Optional[str] = None
     placa: Optional[str] = None
     disponible: Optional[bool] = None
     categoria_id: Optional[int] = None
-    tipo_id: Optional[int] = None  # se permite actualizar también el tipo
+    tipo_id: Optional[int] = None
 
 
 class VehiculoResponse(VehiculoBase):

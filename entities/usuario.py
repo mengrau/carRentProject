@@ -1,5 +1,6 @@
 """
-Modelo de Usuario
+Entidad Usuario
+===============
 """
 
 from sqlalchemy import Column, Integer, String, Enum, Boolean, ForeignKey, DateTime
@@ -17,6 +18,29 @@ class RolEnum(enum.Enum):
 
 
 class Usuario(Base):
+    """
+    Modelo de la tabla usuarios
+
+    Representa un usuario del sistema con credenciales de acceso, rol y estado,
+    ademas de la trazabilidad de su creacion y edicion.
+
+    Atributos:
+        id (UUID): Identificador unico del usuario.
+        username (str): Nombre de usuario unico utilizado para autenticacion.
+        password_hash (str): Hash de la contrasena del usuario.
+        rol (RolEnum): Rol asignado al usuario (por defecto admin).
+        estado (bool): Estado del usuario (activo o inactivo).
+
+        id_usuario_creacion (UUID, opcional): Usuario que realizo la creacion del registro.
+        id_usuario_edicion (UUID, opcional): Usuario que realizo la ultima edicion.
+        fecha_creacion (datetime): Fecha en que fue creado el registro.
+        fecha_actualizacion (datetime): Fecha en que se actualizo por ultima vez.
+
+    Relaciones:
+        usuario_creador (Usuario): Usuario que realizo la creacion.
+        usuario_editor (Usuario): Usuario que realizo la edicion.
+    """
+
     __tablename__ = "usuarios"
 
     id = Column(

@@ -1,4 +1,3 @@
-# entities/__init__.py
 from .clienteCRUD import ClienteCRUD
 from .empleadoCRUD import EmpleadoCRUD
 from .vehiculoCRUD import VehiculoCRUD

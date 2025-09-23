@@ -15,6 +15,29 @@ from database.config import Base
 
 
 class Pago(Base):
+    """
+    Modelo de la tabla pagos
+
+    Representa un pago asociado a un contrato. Contiene el monto del pago,
+    la fecha en que se realizo y la trazabilidad de su creacion y edicion.
+
+    Atributos:
+        id (UUID): Identificador unico del pago.
+        contrato_id (UUID): Referencia al contrato al que pertenece el pago.
+        monto (float): Valor monetario del pago.
+        fecha_pago (datetime): Fecha en que se realizo el pago.
+
+        id_usuario_creacion (UUID): Usuario que realizo la creacion del registro.
+        id_usuario_edicion (UUID, opcional): Usuario que realizo la ultima edicion.
+        fecha_creacion (datetime): Fecha en que fue creado el registro.
+        fecha_actualizacion (datetime): Fecha en que se actualizo por ultima vez.
+
+    Relaciones:
+        usuario_creador (Usuario): Usuario que realizo la creacion.
+        usuario_editor (Usuario): Usuario que realizo la edicion.
+        contrato (Contrato): Contrato al que pertenece el pago.
+    """
+
     __tablename__ = "pagos"
 
     id = Column(
