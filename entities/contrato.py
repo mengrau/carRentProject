@@ -15,6 +15,36 @@ from database.config import Base
 
 
 class Contrato(Base):
+    """
+    Modelo de la tabla contratos
+
+    Representa un contrato entre un cliente, un vehiculo y un empleado.
+    Define las fechas de inicio y fin, el estado del contrato y la
+    informacion de trazabilidad de su creacion y edicion.
+
+    Atributos:
+        id (UUID): Identificador unico del contrato.
+        cliente_id (UUID): Referencia al cliente asociado.
+        vehiculo_id (UUID): Referencia al vehiculo asociado.
+        empleado_id (UUID): Referencia al empleado asociado.
+        fecha_inicio (datetime): Fecha en que inicia el contrato.
+        fecha_fin (datetime, opcional): Fecha en que terminó o finalizará el contrato.
+        activo (bool): Estado del contrato (activo o inactivo).
+
+        id_usuario_creacion (UUID): Usuario que realizó la creacion del registro.
+        id_usuario_edicion (UUID, opcional): Usuario que realizó la ultima edicion.
+        fecha_creacion (datetime): Fecha en que fue creado el registro.
+        fecha_actualizacion (datetime): Fecha en que se actualizo por ultima vez.
+
+    Relaciones:
+        usuario_creador (Usuario): Usuario que realizo la creacion.
+        usuario_editor (Usuario): Usuario que realizo la edicion.
+        cliente (Cliente): Cliente asociado al contrato.
+        vehiculo (Vehiculo): Vehiculo asociado al contrato.
+        empleado (Empleado): Empleado asociado al contrato.
+        pagos (list[Pago]): Pagos relacionados con el contrato.
+    """
+
     __tablename__ = "contratos"
 
     id = Column(
