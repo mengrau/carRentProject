@@ -27,9 +27,18 @@ class Pago(Base):
     contrato_id = Column(UUID(as_uuid=True), ForeignKey("contratos.id"), nullable=False)
     monto = Column(Float, nullable=False)
     fecha_pago = Column(DateTime, default=datetime.now, nullable=False)
+
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False
+    )
+    id_usuario_edicion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
+    usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     contrato = relationship("Contrato", back_populates="pagos")
 
 

@@ -2,9 +2,10 @@
 Modelo de Usuario
 """
 
-from sqlalchemy import Column, Integer, String, Enum, Boolean
+from sqlalchemy import Column, Integer, String, Enum, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database.config import Base
+from datetime import datetime
 from auth.security import hash_password, verify_password
 import enum
 import uuid
@@ -29,6 +30,18 @@ class Usuario(Base):
     password_hash = Column(String(255), nullable=False)
     rol = Column(Enum(RolEnum), default=RolEnum.admin, nullable=False)
     estado = Column(Boolean, default=True)
+
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
+    id_usuario_edicion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
+    fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
+    fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
 
     def set_password(self, password: str):
         """Convierte la clave en hash y la guarda"""

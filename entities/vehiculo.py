@@ -31,17 +31,26 @@ class Vehiculo(Base):
     modelo = Column(String(100), nullable=False)
     placa = Column(String(20), unique=True, nullable=False, index=True)
     disponible = Column(Boolean, default=True, nullable=False)
+
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False
+    )
+    id_usuario_edicion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     # Relaciones
+    usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     tipo_vehiculo = relationship("TipoVehiculo", back_populates="vehiculos")
     contratos = relationship(
         "Contrato", back_populates="vehiculo", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
-        return f"<Vehiculo(id={self.id}, marca='{self.marca}', modelo='{self.modelo}', disponible={self.disponible})>"
+        return f"<Vehiculo(marca='{self.marca}', modelo='{self.modelo}', placa='{self.placa}, disponible={self.disponible})>"
 
 
 # ====== Pydantic Schemas ======

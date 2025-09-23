@@ -15,7 +15,12 @@ class EmpleadoCRUD:
         self.db = db
 
     def crear_empleado(
-        self, nombre: str, email: str, rol: str = "Asesor", activo: bool = True
+        self,
+        nombre: str,
+        email: str,
+        id_usuario_creacion: UUID,
+        rol: str = "Asesor",
+        activo: bool = True,
     ) -> Empleado:
         """
         Crear un nuevo empleado con validaciones
@@ -41,6 +46,7 @@ class EmpleadoCRUD:
         empleado = Empleado(
             nombre=nombre.strip().title(),
             email=email.strip().lower(),
+            id_usuario_creacion=id_usuario_creacion,
             rol=rol.strip().title(),
             activo=activo,
         )
@@ -87,7 +93,9 @@ class EmpleadoCRUD:
             query = query.filter(Empleado.activo == True)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_empleado(self, empleado_id: UUID, **kwargs) -> Optional[Empleado]:
+    def actualizar_empleado(
+        self, empleado_id: UUID, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Empleado]:
         """
         Actualizar un empleado con validaciones
 
@@ -119,6 +127,7 @@ class EmpleadoCRUD:
             if hasattr(empleado, key) and value is not None:
                 setattr(empleado, key, value)
 
+        empleado.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(empleado)
         return empleado

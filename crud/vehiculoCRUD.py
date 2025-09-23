@@ -18,6 +18,7 @@ class VehiculoCRUD:
         marca: str,
         modelo: str,
         tipo_id: UUID,
+        id_usuario_creacion: UUID,
         placa: Optional[str] = None,
         disponible: bool = True,
     ) -> Vehiculo:
@@ -50,6 +51,7 @@ class VehiculoCRUD:
         vehiculo = Vehiculo(
             marca=marca.strip().title(),
             modelo=modelo.strip().title(),
+            id_usuario_creacion=id_usuario_creacion,
             placa=placa.strip().upper() if placa else None,
             disponible=disponible,
             tipo_id=tipo_id,
@@ -82,7 +84,9 @@ class VehiculoCRUD:
         """
         return self.db.query(Vehiculo).offset(skip).limit(limit).all()
 
-    def actualizar_vehiculo(self, vehiculo_id: UUID, **kwargs) -> Optional[Vehiculo]:
+    def actualizar_vehiculo(
+        self, vehiculo_id: UUID, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Vehiculo]:
         """
         Actualizar un vehículo con validaciones
         """
@@ -119,6 +123,7 @@ class VehiculoCRUD:
             if hasattr(vehiculo, key):
                 setattr(vehiculo, key, value)
 
+        vehiculo.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(vehiculo)
         return vehiculo

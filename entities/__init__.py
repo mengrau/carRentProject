@@ -6,3 +6,4 @@ from .vehiculo import Vehiculo
 from .contrato import Contrato
 from .pago import Pago
 from .tipoVehiculo import TipoVehiculo
+from .usuario import Usuario
