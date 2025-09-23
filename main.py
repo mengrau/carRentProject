@@ -14,6 +14,50 @@ from uuid import UUID
 from datetime import datetime
 
 
+def create_admin_user():
+    """Crear usuario administrador por defecto"""
+    print("\n=== CREANDO USUARIO ADMINISTRADOR ===\n")
+
+    try:
+        from database.config import SessionLocal
+        from entities.usuario import Usuario, hash_password, RolEnum
+
+        db = SessionLocal()
+
+        # Verificar si ya existe un admin (buscando por rol)
+        admin_exists = db.query(Usuario).filter(Usuario.rol == RolEnum.admin).first()
+
+        if admin_exists:
+            print(f"[OK] Usuario administrador ya existe: {admin_exists.username}")
+            db.close()
+            return True
+
+        # Crear usuario admin
+        admin_user = Usuario(
+            username="admin",
+            id_usuario_creacion=None,
+            password_hash=hash_password("admin123"),
+            rol=RolEnum.admin,
+            estado=True,
+        )
+
+        db.add(admin_user)
+        db.commit()
+        db.refresh(admin_user)
+
+        print(f"[OK] Usuario administrador creado exitosamente")
+        print(f"     ID: {admin_user.id}")
+        print(f"     Rol: {admin_user.rol.value}")
+        print(f"     Nombre: {admin_user.username}")
+
+        db.close()
+        return True
+
+    except Exception as e:
+        print(f"[ERROR] Error creando usuario administrador: {e}")
+        return False
+
+
 class SistemaGestion:
     """Sistema principal de gestion con interfaz de consola"""
 
@@ -60,6 +104,7 @@ class SistemaGestion:
         try:
             print("Iniciando Sistema de Gestion...")
             create_tables()
+            create_admin_user()
 
             if not self.mostrar_pantalla_login():
                 print("Acceso denegado. Hasta luego!")
@@ -117,7 +162,9 @@ class SistemaGestion:
             username = input("Username: ").strip()
             password = getpass.getpass("Password: ")
             usuario = self.usuario_crud.crear_usuario(
-                username=username, password=password
+                username=username,
+                id_usuario_creacion=self.usuario_actual.id,
+                password=password,
             )
             print("Usuario creado:", usuario)
         elif opcion == "2":
@@ -127,19 +174,53 @@ class SistemaGestion:
                     f"{u.id} - {u.username} ({u.rol.value}) - {'Activo' if u.estado else 'Inactivo'}"
                 )
         elif opcion == "3":
-            uid = input("ID Usuario: ")
+            username_actual = input("Username actual: ").strip()
             nuevo_username = input("Nuevo username (opcional): ").strip() or None
             nueva_clave = getpass.getpass("Nueva clave (opcional): ") or None
-            usuario = self.usuario_crud.actualizar_usuario(
-                uid, username=nuevo_username, password=nueva_clave
-            )
-            print("Usuario actualizado:", usuario)
+
+            try:
+
+                usuario_obj = self.usuario_crud.obtener_usuario_por_username(
+                    username_actual
+                )
+
+                if not usuario_obj:
+                    print("Usuario no encontrado con ese username")
+                else:
+                    usuario = self.usuario_crud.actualizar_usuario(
+                        usuario_obj.id,
+                        username=nuevo_username,
+                        password=nueva_clave,
+                        id_usuario_edicion=self.usuario_actual.id,
+                    )
+                    print("Usuario actualizado:", usuario)
+
+            except ValueError as e:
+                print("ERROR:", str(e))
+
         elif opcion == "4":
-            uid = input("ID Usuario: ")
-            if self.usuario_crud.eliminar_usuario(uid):
-                print("Usuario eliminado")
-            else:
-                print("Usuario no encontrado")
+            username_actual = input("Username del usuario a eliminar: ").strip()
+
+            try:
+                usuario_obj = self.usuario_crud.obtener_usuario_por_username(
+                    username_actual
+                )
+
+                if not usuario_obj:
+                    print("Usuario no encontrado con ese username")
+                else:
+                    if self.usuario_crud.eliminar_usuario(usuario_obj.id):
+                        print("Usuario eliminado")
+                    else:
+                        print("No se pudo eliminar el usuario")
+
+            except Exception as e:
+                print("ERROR:", str(e))
+        elif opcion == "0":
+            return
+
+        else:
+            print("Opción no válida, intente de nuevo")
 
     # ---------------- CLIENTES ----------------
     def mostrar_menu_clientes(self):
@@ -157,7 +238,10 @@ class SistemaGestion:
             telefono = input("Teléfono (opcional): ").strip() or None
             try:
                 cliente = self.cliente_crud.crear_cliente(
-                    nombre=nombre, email=email, telefono=telefono
+                    nombre=nombre,
+                    email=email,
+                    telefono=telefono,
+                    id_usuario_creacion=self.usuario_actual.id,
                 )
                 print("Cliente creado:", cliente)
             except ValueError as e:
@@ -171,18 +255,26 @@ class SistemaGestion:
                 )
 
         elif opcion == "3":
-            cid = input("ID Cliente: ").strip()
+            email_actual = input("Email actual del cliente: ").strip().lower()
             nuevo_nombre = input("Nuevo nombre (opcional): ").strip() or None
             nuevo_email = input("Nuevo email (opcional): ").strip() or None
             nuevo_telefono = input("Nuevo teléfono (opcional): ").strip() or None
             try:
-                cliente = self.cliente_crud.actualizar_cliente(
-                    cid, nombre=nuevo_nombre, email=nuevo_email, telefono=nuevo_telefono
-                )
-                if cliente:
-                    print("Cliente actualizado:", cliente)
+
+                cliente_obj = self.cliente_crud.obtener_cliente_por_email(email_actual)
+
+                if not cliente_obj:
+                    print("Cliente no encontrado con ese email")
                 else:
-                    print("Cliente no encontrado")
+                    cliente = self.cliente_crud.actualizar_cliente(
+                        cliente_obj.id,
+                        id_usuario_edicion=self.usuario_actual.id,
+                        nombre=nuevo_nombre,
+                        email=nuevo_email,
+                        telefono=nuevo_telefono,
+                    )
+                    print("Cliente actualizado:", cliente)
+
             except ValueError as e:
                 print("ERROR:", str(e))
 
@@ -192,6 +284,10 @@ class SistemaGestion:
                 print("Cliente eliminado")
             else:
                 print("Cliente no encontrado")
+        elif opcion == "0":
+            return
+        else:
+            print("Opción no válida, intente de nuevo")
 
     # ---------------- EMPLEADOS ----------------
     def mostrar_menu_empleados(self):
@@ -210,7 +306,11 @@ class SistemaGestion:
             activo = input("¿Activo? (s/n): ").strip().lower() != "n"
             try:
                 empleado = self.empleado_crud.crear_empleado(
-                    nombre=nombre, email=email, rol=rol, activo=activo
+                    nombre=nombre,
+                    email=email,
+                    id_usuario_creacion=self.usuario_actual.id,
+                    rol=rol,
+                    activo=activo,
                 )
                 print("Empleado creado:", empleado)
             except ValueError as e:
@@ -225,13 +325,16 @@ class SistemaGestion:
                 )
 
         elif opcion == "3":
-            from uuid import UUID
-
             try:
-                eid = UUID(input("ID Empleado: ").strip())
+                email_actual = input("Email actual del empleado: ").strip().lower()
+
                 nuevo_nombre = input("Nuevo nombre (opcional): ").strip() or None
-                nuevo_email = input("Nuevo email (opcional): ").strip() or None
+
+                tmp = input("Nuevo email (opcional): ").strip()
+                nuevo_email = tmp.lower() if tmp else None
+
                 nuevo_rol = input("Nuevo rol (opcional): ").strip() or None
+
                 activo_input = (
                     input("¿Activo? (s/n, dejar vacío para no cambiar): ")
                     .strip()
@@ -243,33 +346,54 @@ class SistemaGestion:
                 elif activo_input == "n":
                     nuevo_activo = False
 
-                empleado = self.empleado_crud.actualizar_empleado(
-                    eid,
-                    nombre=nuevo_nombre,
-                    email=nuevo_email,
-                    rol=nuevo_rol,
-                    activo=nuevo_activo,
+                empleado_obj = self.empleado_crud.obtener_empleado_por_email(
+                    email_actual
                 )
-                if empleado:
-                    print("Empleado actualizado:", empleado)
+
+                if not empleado_obj:
+                    print("Empleado no encontrado con ese email")
                 else:
-                    print("Empleado no encontrado")
+                    empleado = self.empleado_crud.actualizar_empleado(
+                        empleado_obj.id,
+                        id_usuario_edicion=self.usuario_actual.id,
+                        nombre=nuevo_nombre,
+                        email=nuevo_email,
+                        rol=nuevo_rol,
+                        activo=nuevo_activo,
+                    )
+                    if empleado:
+                        print("Empleado actualizado:", empleado)
+                    else:
+                        print("Error al actualizar empleado")
             except ValueError as e:
                 print("ERROR:", str(e))
-            except Exception:
-                print("ERROR: ID inválido, debe ser UUID")
+            except Exception as e:
+                print("ERROR inesperado:", str(e))
 
         elif opcion == "4":
-            from uuid import UUID
+            email_actual = input("Email del empleado a eliminar: ").strip().lower()
 
             try:
-                eid = UUID(input("ID Empleado: ").strip())
-                if self.empleado_crud.eliminar_empleado(eid):
-                    print("Empleado eliminado")
+
+                empleado_obj = self.empleado_crud.obtener_empleado_por_email(
+                    email_actual
+                )
+
+                if not empleado_obj:
+                    print("Empleado no encontrado con ese email")
                 else:
-                    print("Empleado no encontrado")
-            except Exception:
-                print("ERROR: ID inválido, debe ser UUID")
+                    if self.empleado_crud.eliminar_empleado(empleado_obj.id):
+                        print("Empleado eliminado")
+                    else:
+                        print("No se pudo eliminar el empleado")
+
+            except Exception as e:
+                print("ERROR:", str(e))
+
+        elif opcion == "0":
+            return
+        else:
+            print("Opción no válida, intente de nuevo")
 
     # ---------------- VEHICULOS ----------------
     def mostrar_menu_vehiculos(self):
@@ -294,6 +418,7 @@ class SistemaGestion:
                     vehiculo = self.vehiculo_crud.crear_vehiculo(
                         marca=marca,
                         modelo=modelo,
+                        id_usuario_creacion=self.usuario_actual.id,
                         tipo_id=tipo_id,
                         placa=placa,
                         disponible=disponible,
@@ -313,49 +438,64 @@ class SistemaGestion:
                 )
 
         elif opcion == "3":
-            from uuid import UUID
+            placa_actual = input("Placa actual del vehículo: ").strip().upper()
+            nueva_marca = input("Nueva marca (opcional): ").strip() or None
+            nuevo_modelo = input("Nuevo modelo (opcional): ").strip() or None
+            nueva_placa = input("Nueva placa (opcional): ").strip().upper() or None
+            disponible_input = (
+                input("¿Disponible? (s/n, vacío = no cambiar): ").strip().lower()
+            )
+
+            nuevo_disponible = None
+            if disponible_input == "s":
+                nuevo_disponible = True
+            elif disponible_input == "n":
+                nuevo_disponible = False
 
             try:
-                vid = UUID(input("ID Vehículo: ").strip())
-                nueva_marca = input("Nueva marca (opcional): ").strip() or None
-                nuevo_modelo = input("Nuevo modelo (opcional): ").strip() or None
-                nueva_placa = input("Nueva placa (opcional): ").strip() or None
-                disponible_input = (
-                    input("¿Disponible? (s/n, vacío = no cambiar): ").strip().lower()
-                )
-                nuevo_disponible = None
-                if disponible_input == "s":
-                    nuevo_disponible = True
-                elif disponible_input == "n":
-                    nuevo_disponible = False
 
-                vehiculo = self.vehiculo_crud.actualizar_vehiculo(
-                    vid,
-                    marca=nueva_marca,
-                    modelo=nuevo_modelo,
-                    placa=nueva_placa,
-                    disponible=nuevo_disponible,
+                vehiculo_obj = self.vehiculo_crud.obtener_vehiculo_por_placa(
+                    placa_actual
                 )
-                if vehiculo:
-                    print("Vehículo actualizado:", vehiculo)
+
+                if not vehiculo_obj:
+                    print("Vehículo no encontrado con esa placa")
                 else:
-                    print("Vehículo no encontrado")
+
+                    vehiculo = self.vehiculo_crud.actualizar_vehiculo(
+                        vehiculo_obj.id,
+                        id_usuario_edicion=self.usuario_actual.id,
+                        marca=nueva_marca,
+                        modelo=nuevo_modelo,
+                        placa=nueva_placa,
+                        disponible=nuevo_disponible,
+                    )
+                    print("Vehículo actualizado:", vehiculo)
+
             except ValueError as e:
                 print("ERROR:", str(e))
-            except Exception:
-                print("ERROR: ID inválido, debe ser UUID")
 
         elif opcion == "4":
-            from uuid import UUID
-
+            placa_actual = input("Placa del vehículo a eliminar: ").strip().upper()
             try:
-                vid = UUID(input("ID Vehículo: ").strip())
-                if self.vehiculo_crud.eliminar_vehiculo(vid):
-                    print("Vehículo eliminado")
+
+                vehiculo_obj = self.vehiculo_crud.obtener_vehiculo_por_placa(
+                    placa_actual
+                )
+
+                if not vehiculo_obj:
+                    print("Vehículo no encontrado con esa placa")
                 else:
-                    print("Vehículo no encontrado")
-            except Exception:
-                print("ERROR: ID inválido, debe ser UUID")
+                    if self.vehiculo_crud.eliminar_vehiculo(vehiculo_obj.id):
+                        print("Vehículo eliminado")
+                    else:
+                        print("Error al eliminar el vehículo")
+            except Exception as e:
+                print("ERROR:", str(e))
+        elif opcion == "0":
+            return
+        else:
+            print("Opción no válida, intente de nuevo")
 
     # ---------------- TIPO VEHICULOS ----------------
     def mostrar_menu_tipos_vehiculo(self):
@@ -373,7 +513,10 @@ class SistemaGestion:
             activo = input("¿Activo? (s/n): ").strip().lower() != "n"
             try:
                 tipo = self.tipo_vehiculo_crud.crear_tipo_vehiculo(
-                    nombre=nombre, descripcion=descripcion, activo=activo
+                    nombre=nombre,
+                    id_usuario_cracion=self.usuario_actual.id,
+                    descripcion=descripcion,
+                    activo=activo,
                 )
                 print("Tipo de Vehículo creado:", tipo)
             except ValueError as e:
@@ -406,6 +549,7 @@ class SistemaGestion:
                 tipo = self.tipo_vehiculo_crud.actualizar_tipo_vehiculo(
                     tid,
                     nombre=nuevo_nombre,
+                    id_usuario_edicion=self.usuario_actual.id,
                     descripcion=nueva_desc,
                     activo=nuevo_activo,
                 )
@@ -429,154 +573,156 @@ class SistemaGestion:
                     print("Tipo de Vehículo no encontrado")
             except Exception:
                 print("ERROR: ID inválido, debe ser UUID")
+        elif opcion == "0":
+            return
+        else:
+            print("Opción no válida, intente de nuevo")
 
     # ---------------- CONTRATOS ----------------
     def mostrar_menu_contratos(self):
-        while True:
-            print("\n--- GESTION DE CONTRATOS ---")
-            print("1. Crear Contrato (con pago obligatorio)")
-            print("2. Listar Contratos")
-            print("3. Obtener Contrato por ID")
-            print("4. Actualizar Contrato")
-            print("5. Eliminar Contrato")
-            print("6. Gestionar Pagos de un Contrato")
-            print("0. Volver")
-            opcion = input("Seleccione: ").strip()
 
-            if opcion == "1":
-                try:
-                    cliente_id = UUID(input("ID Cliente: ").strip())
-                    vehiculo_id = UUID(input("ID Vehículo: ").strip())
-                    empleado_id = UUID(input("ID Empleado: ").strip())
-                    fecha_inicio = datetime.fromisoformat(
-                        input("Fecha inicio (YYYY-MM-DD): ").strip()
-                    )
-                    fecha_fin_input = input(
-                        "Fecha fin (YYYY-MM-DD, opcional): "
-                    ).strip()
-                    fecha_fin = (
-                        datetime.fromisoformat(fecha_fin_input)
-                        if fecha_fin_input
-                        else None
-                    )
+        print("\n--- GESTION DE CONTRATOS ---")
+        print("1. Crear Contrato (con pago obligatorio)")
+        print("2. Listar Contratos")
+        print("3. Obtener Contrato por ID")
+        print("4. Actualizar Contrato")
+        print("5. Eliminar Contrato")
+        print("6. Gestionar Pagos de un Contrato")
+        print("0. Volver")
+        opcion = input("Seleccione: ").strip()
 
-                    contrato = self.contrato_crud.crear_contrato(
-                        cliente_id=cliente_id,
-                        vehiculo_id=vehiculo_id,
-                        empleado_id=empleado_id,
-                        fecha_inicio=fecha_inicio,
-                        fecha_fin=fecha_fin,
-                    )
-                    print("Contrato creado:", contrato)
+        if opcion == "1":
+            try:
+                cliente_id = UUID(input("ID Cliente: ").strip())
+                vehiculo_id = UUID(input("ID Vehículo: ").strip())
+                empleado_id = UUID(input("ID Empleado: ").strip())
+                fecha_inicio = datetime.fromisoformat(
+                    input("Fecha inicio (YYYY-MM-DD): ").strip()
+                )
+                fecha_fin_input = input("Fecha fin (YYYY-MM-DD, opcional): ").strip()
+                fecha_fin = (
+                    datetime.fromisoformat(fecha_fin_input) if fecha_fin_input else None
+                )
 
-                    monto = float(
-                        input("Monto inicial del contrato (obligatorio): ").strip()
-                    )
-                    fecha_pago_input = input(
-                        "Fecha del pago (YYYY-MM-DD, opcional): "
-                    ).strip()
-                    fecha_pago = (
-                        datetime.fromisoformat(fecha_pago_input)
-                        if fecha_pago_input
-                        else None
-                    )
-                    pago = self.pago_crud.crear_pago(
-                        contrato_id=contrato.id, monto=monto, fecha_pago=fecha_pago
-                    )
-                    print("Pago registrado automáticamente:", pago)
+                contrato = self.contrato_crud.crear_contrato(
+                    cliente_id=cliente_id,
+                    vehiculo_id=vehiculo_id,
+                    empleado_id=empleado_id,
+                    id_usuario_creacion=self.usuario_actual.id,
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                )
+                print("Contrato creado:", contrato)
 
-                except Exception as e:
-                    print("ERROR:", str(e))
+                monto = float(
+                    input("Monto inicial del contrato (obligatorio): ").strip()
+                )
+                fecha_pago_input = input(
+                    "Fecha del pago (YYYY-MM-DD, opcional): "
+                ).strip()
+                fecha_pago = (
+                    datetime.fromisoformat(fecha_pago_input)
+                    if fecha_pago_input
+                    else None
+                )
+                pago = self.pago_crud.crear_pago(
+                    contrato_id=contrato.id, monto=monto, fecha_pago=fecha_pago
+                )
+                print("Pago registrado automáticamente:", pago)
 
-            elif opcion == "2":
-                try:
-                    activos_input = input("¿Solo activos? (s/n): ").strip().lower()
-                    solo_activos = activos_input == "s"
-                    contratos = self.contrato_crud.obtener_contratos(
-                        solo_activos=solo_activos
+            except Exception as e:
+                print("ERROR:", str(e))
+
+        elif opcion == "2":
+            try:
+                activos_input = input("¿Solo activos? (s/n): ").strip().lower()
+                solo_activos = activos_input == "s"
+                contratos = self.contrato_crud.obtener_contratos(
+                    solo_activos=solo_activos
+                )
+                for c in contratos:
+                    print(
+                        f"{c.id} - Cliente: {c.cliente_id} - Vehículo: {c.vehiculo_id} "
+                        f"- Empleado: {c.empleado_id} - Inicio: {c.fecha_inicio} "
+                        f"- Fin: {c.fecha_fin or 'N/A'} - {'Activo' if c.activo else 'Inactivo'}"
                     )
-                    for c in contratos:
-                        print(
-                            f"{c.id} - Cliente: {c.cliente_id} - Vehículo: {c.vehiculo_id} "
-                            f"- Empleado: {c.empleado_id} - Inicio: {c.fecha_inicio} "
-                            f"- Fin: {c.fecha_fin or 'N/A'} - {'Activo' if c.activo else 'Inactivo'}"
-                        )
-                except Exception as e:
-                    print("ERROR:", str(e))
+            except Exception as e:
+                print("ERROR:", str(e))
 
-            elif opcion == "3":
-                try:
-                    cid = UUID(input("ID Contrato: ").strip())
-                    contrato = self.contrato_crud.obtener_contrato(cid)
-                    if contrato:
-                        print(
-                            f"{contrato.id} - Cliente: {contrato.cliente_id} - Vehículo: {contrato.vehiculo_id} "
-                            f"- Empleado: {contrato.empleado_id} - Inicio: {contrato.fecha_inicio} "
-                            f"- Fin: {contrato.fecha_fin or 'N/A'} - {'Activo' if contrato.activo else 'Inactivo'}"
-                        )
-                        pagos = self.pago_crud.obtener_pagos(contrato_id=contrato.id)
-                        if pagos:
-                            print("Pagos asociados:")
-                            for p in pagos:
-                                print(
-                                    f"   Pago {p.id} - Monto: {p.monto} - Fecha: {p.fecha_pago}"
-                                )
-                        else:
-                            print("   No hay pagos registrados.")
+        elif opcion == "3":
+            try:
+                cid = UUID(input("ID Contrato: ").strip())
+                contrato = self.contrato_crud.obtener_contrato(cid)
+                if contrato:
+                    print(
+                        f"{contrato.id} - Cliente: {contrato.cliente_id} - Vehículo: {contrato.vehiculo_id} "
+                        f"- Empleado: {contrato.empleado_id} - Inicio: {contrato.fecha_inicio} "
+                        f"- Fin: {contrato.fecha_fin or 'N/A'} - {'Activo' if contrato.activo else 'Inactivo'}"
+                    )
+                    pagos = self.pago_crud.obtener_pagos(contrato_id=contrato.id)
+                    if pagos:
+                        print("Pagos asociados:")
+                        for p in pagos:
+                            print(
+                                f"   Pago {p.id} - Monto: {p.monto} - Fecha: {p.fecha_pago}"
+                            )
                     else:
-                        print("Contrato no encontrado")
-                except Exception:
-                    print("ERROR: ID inválido, debe ser UUID")
+                        print("   No hay pagos registrados.")
+                else:
+                    print("Contrato no encontrado")
+            except Exception:
+                print("ERROR: ID inválido, debe ser UUID")
 
-            elif opcion == "4":
-                try:
-                    cid = UUID(input("ID Contrato: ").strip())
-                    nuevo_inicio = input(
-                        "Nueva fecha inicio (YYYY-MM-DD, opcional): "
-                    ).strip()
-                    nuevo_fin = input(
-                        "Nueva fecha fin (YYYY-MM-DD, opcional): "
-                    ).strip()
-                    nuevo_activo_input = (
-                        input("¿Activo? (s/n, vacío = no cambiar): ").strip().lower()
-                    )
+        elif opcion == "4":
+            try:
+                cid = UUID(input("ID Contrato: ").strip())
+                nuevo_inicio = input(
+                    "Nueva fecha inicio (YYYY-MM-DD, opcional): "
+                ).strip()
+                nuevo_fin = input("Nueva fecha fin (YYYY-MM-DD, opcional): ").strip()
+                nuevo_activo_input = (
+                    input("¿Activo? (s/n, vacío = no cambiar): ").strip().lower()
+                )
 
-                    kwargs = {}
-                    if nuevo_inicio:
-                        kwargs["fecha_inicio"] = datetime.fromisoformat(nuevo_inicio)
-                    if nuevo_fin:
-                        kwargs["fecha_fin"] = datetime.fromisoformat(nuevo_fin)
-                    if nuevo_activo_input == "s":
-                        kwargs["activo"] = True
-                    elif nuevo_activo_input == "n":
-                        kwargs["activo"] = False
+                kwargs = {}
+                if nuevo_inicio:
+                    kwargs["fecha_inicio"] = datetime.fromisoformat(nuevo_inicio)
+                if nuevo_fin:
+                    kwargs["fecha_fin"] = datetime.fromisoformat(nuevo_fin)
+                if nuevo_activo_input == "s":
+                    kwargs["activo"] = True
+                elif nuevo_activo_input == "n":
+                    kwargs["activo"] = False
 
-                    contrato = self.contrato_crud.actualizar_contrato(cid, **kwargs)
-                    if contrato:
-                        print("Contrato actualizado:", contrato)
-                    else:
-                        print("Contrato no encontrado")
-                except Exception as e:
-                    print("ERROR:", str(e))
+                contrato = self.contrato_crud.actualizar_contrato(
+                    cid, id_usuario_edicion=self.usuario_actual.id, **kwargs
+                )
+                if contrato:
+                    print("Contrato actualizado:", contrato)
+                else:
+                    print("Contrato no encontrado")
+            except Exception as e:
+                print("ERROR:", str(e))
 
-            elif opcion == "5":
-                try:
-                    cid = UUID(input("ID Contrato: ").strip())
-                    if self.contrato_crud.eliminar_contrato(cid):
-                        print("Contrato eliminado")
-                    else:
-                        print("Contrato no encontrado")
-                except Exception:
-                    print("ERROR: ID inválido, debe ser UUID")
+        elif opcion == "5":
+            try:
+                cid = UUID(input("ID Contrato: ").strip())
+                if self.contrato_crud.eliminar_contrato(cid):
+                    print("Contrato eliminado")
+                else:
+                    print("Contrato no encontrado")
+            except Exception:
+                print("ERROR: ID inválido, debe ser UUID")
 
-            elif opcion == "6":
-                self.mostrar_menu_pagos()
+        elif opcion == "6":
+            self.mostrar_menu_pagos()
 
-            elif opcion == "0":
-                break
-            else:
-                print("Opción inválida")
+        elif opcion == "0":
+            return
+        else:
+            print("Opción inválida")
 
+    # ---------------- PAGOS ----------------
     def mostrar_menu_pagos(self):
         print("\n--- GESTION DE PAGOS ---")
         print("1. Listar Pagos de un Contrato")
@@ -607,7 +753,9 @@ class SistemaGestion:
                     kwargs["monto"] = float(nuevo_monto)
                 if nueva_fecha:
                     kwargs["fecha_pago"] = datetime.fromisoformat(nueva_fecha)
-                pago = self.pago_crud.actualizar_pago(pago_id, **kwargs)
+                pago = self.pago_crud.actualizar_pago(
+                    pago_id, id_usuario_edicion=self.usuario_actual.id, **kwargs
+                )
                 if pago:
                     print("Pago actualizado:", pago)
                 else:

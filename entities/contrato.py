@@ -30,9 +30,18 @@ class Contrato(Base):
     fecha_inicio = Column(DateTime, nullable=False)
     fecha_fin = Column(DateTime, nullable=True)
     activo = Column(Boolean, default=True, nullable=False)
+
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False
+    )
+    id_usuario_edicion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
+    usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     cliente = relationship("Cliente", back_populates="contratos")
     vehiculo = relationship("Vehiculo", back_populates="contratos")
     empleado = relationship("Empleado", back_populates="contratos")

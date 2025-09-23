@@ -5,7 +5,7 @@ Entidad TipoVehiculo
 Modelo de TipoVehiculo con SQLAlchemy y esquemas de validación con Pydantic.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -41,16 +41,25 @@ class TipoVehiculo(Base):
     nombre = Column(String(100), unique=True, nullable=False, index=True)
     descripcion = Column(Text, nullable=True)
     activo = Column(Boolean, default=True, nullable=False)
+
+    id_usuario_creacion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False
+    )
+    id_usuario_edicion = Column(
+        UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True
+    )
     fecha_creacion = Column(DateTime, default=datetime.now, nullable=False)
     fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     # Relaciones
+    usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     vehiculos = relationship(
         "Vehiculo", back_populates="tipo_vehiculo", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
-        return f"<TipoVehiculo(id={self.id}, nombre='{self.nombre}', activo={self.activo})>"
+        return f"<TipoVehiculo(nombre='{self.nombre}', descripcion='{self.descripcion} activo={self.activo})>"
 
     def to_dict(self):
         return {

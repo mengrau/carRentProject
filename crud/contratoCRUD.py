@@ -19,6 +19,7 @@ class ContratoCRUD:
         cliente_id: UUID,
         vehiculo_id: UUID,
         empleado_id: UUID,
+        id_usuario_creacion: UUID,
         fecha_inicio: datetime,
         fecha_fin: Optional[datetime] = None,
     ) -> Contrato:
@@ -45,6 +46,7 @@ class ContratoCRUD:
             cliente_id=cliente_id,
             vehiculo_id=vehiculo_id,
             empleado_id=empleado_id,
+            id_usuario_creacion=id_usuario_creacion,
             fecha_inicio=fecha_inicio,
             fecha_fin=fecha_fin,
             activo=True,
@@ -76,7 +78,9 @@ class ContratoCRUD:
             query = query.filter(Contrato.activo == True)
         return query.offset(skip).limit(limit).all()
 
-    def actualizar_contrato(self, contrato_id: UUID, **kwargs) -> Optional[Contrato]:
+    def actualizar_contrato(
+        self, contrato_id: UUID, id_usuario_edicion: UUID, **kwargs
+    ) -> Optional[Contrato]:
         """
         Actualizar un contrato con validaciones
 
@@ -103,6 +107,7 @@ class ContratoCRUD:
             if hasattr(contrato, key) and value is not None:
                 setattr(contrato, key, value)
 
+        contrato.id_usuario_edicion = id_usuario_edicion
         self.db.commit()
         self.db.refresh(contrato)
         return contrato
