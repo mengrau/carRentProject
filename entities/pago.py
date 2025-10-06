@@ -63,27 +63,3 @@ class Pago(Base):
     usuario_creador = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_editor = relationship("Usuario", foreign_keys=[id_usuario_edicion])
     contrato = relationship("Contrato", back_populates="pagos")
-
-
-class PagoBase(BaseModel):
-    contrato_id: int
-    monto: float
-    fecha_pago: Optional[datetime] = None
-
-
-class PagoCreate(PagoBase):
-    pass
-
-
-class PagoUpdate(BaseModel):
-    monto: Optional[float] = None
-    fecha_pago: Optional[datetime] = None
-
-
-class PagoResponse(PagoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
-
-    class Config:
-        from_attributes = True

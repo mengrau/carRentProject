@@ -85,39 +85,3 @@ class TipoVehiculo(Base):
                 else None
             ),
         }
-
-
-class TipoVehiculoBase(BaseModel):
-    nombre: str = Field(
-        ..., min_length=2, max_length=100, description="Nombre del tipo de vehículo"
-    )
-    descripcion: Optional[str] = Field(
-        None, description="Descripción del tipo de vehículo"
-    )
-    activo: bool = Field(True, description="Estado del tipo de vehículo")
-
-    @validator("nombre")
-    def validar_nombre(cls, v):
-        if not v.strip():
-            raise ValueError("El nombre no puede estar vacío")
-        return v.strip().title()
-
-
-class TipoVehiculoCreate(TipoVehiculoBase):
-    pass
-
-
-class TipoVehiculoUpdate(BaseModel):
-    nombre: Optional[str]
-    descripcion: Optional[str] = Field(
-        None, description="Nueva descripción del tipo de vehículo"
-    )
-    activo: Optional[bool] = Field(
-        None, description="Nuevo estado del tipo de vehículo"
-    )
-
-    @validator("nombre")
-    def validar_nombre(cls, v):
-        if v is not None and not v.strip():
-            raise ValueError("El nombre no puede estar vacío si se envía")
-        return v.strip().title() if v else v
