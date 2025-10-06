@@ -1,85 +1,93 @@
+from pydantic import BaseModel, EmailStr
+from typing import Optional, Any, Dict
+from uuid import UUID
 from datetime import datetime
-from typing import Optional
-
-from pydantic import BaseModel, Field, field_validator, EmailStr
-from typing import Optional
-import uuid
-from datetime import datetime
-import enum
 
 
-# ================= CLIENTE =================
+# =========================
+# MODELOS: CLIENTE
+# =========================
 class ClienteBase(BaseModel):
     nombre: str
     email: EmailStr
     telefono: Optional[str] = None
-    activo: bool = True
-
-    @field_validator("nombre")
-    @classmethod
-    def validar_nombre(cls, v: str) -> str:
-        return v.strip().title()
 
 
 class ClienteCreate(ClienteBase):
+    """Modelo para crear cliente (el router actual solo envía nombre/email/telefono)."""
+
     pass
 
 
 class ClienteUpdate(BaseModel):
+    """Modelo para actualizar cliente. id_usuario_edicion se incluye para auditoría."""
+
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
     telefono: Optional[str] = None
-    activo: Optional[bool] = None
+    id_usuario_edicion: UUID
 
 
 class ClienteResponse(ClienteBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
+    id: UUID
+    id_usuario_creacion: Optional[UUID] = None
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
+    activo: Optional[bool] = True
 
-    class Config:
-        from_attributes = True
+    # Pydantic v2: permitir construcciones desde objetos ORM (SQLAlchemy)
+    model_config = {"from_attributes": True}
 
 
-# ================= CONTRATO =================
+# =========================
+# MODELOS: CONTRATO
+# =========================
 class ContratoBase(BaseModel):
-    cliente_id: int
-    vehiculo_id: int
-    empleado_id: int
+    cliente_id: UUID
+    vehiculo_id: UUID
+    empleado_id: UUID
     fecha_inicio: datetime
     fecha_fin: Optional[datetime] = None
-    activo: bool = True
+    activo: Optional[bool] = True
 
 
 class ContratoCreate(ContratoBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class ContratoUpdate(BaseModel):
+    cliente_id: Optional[UUID] = None
+    vehiculo_id: Optional[UUID] = None
+    empleado_id: Optional[UUID] = None
     fecha_inicio: Optional[datetime] = None
     fecha_fin: Optional[datetime] = None
     activo: Optional[bool] = None
+    id_usuario_edicion: UUID
 
 
 class ContratoResponse(ContratoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
+    id: UUID
+    id_usuario_creacion: UUID
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
-# ================= EMPLEADO =================
+# =========================
+# MODELOS: EMPLEADO
+# =========================
 class EmpleadoBase(BaseModel):
     nombre: str
     email: EmailStr
-    rol: str = "Asesor"
-    activo: bool = True
+    rol: Optional[str] = "Asesor"
+    activo: Optional[bool] = True
 
 
 class EmpleadoCreate(EmpleadoBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class EmpleadoUpdate(BaseModel):
@@ -87,134 +95,161 @@ class EmpleadoUpdate(BaseModel):
     email: Optional[EmailStr] = None
     rol: Optional[str] = None
     activo: Optional[bool] = None
+    id_usuario_edicion: UUID
 
 
 class EmpleadoResponse(EmpleadoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
+    id: UUID
+    id_usuario_creacion: Optional[UUID] = None
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
-# ================= PAGO =================
+# =========================
+# MODELOS: PAGO
+# =========================
 class PagoBase(BaseModel):
-    contrato_id: int
+    contrato_id: UUID
     monto: float
     fecha_pago: Optional[datetime] = None
 
 
 class PagoCreate(PagoBase):
-    pass
+    id_usuario_creacion: UUID
+    fecha_pago: Optional[datetime] = None
 
 
 class PagoUpdate(BaseModel):
     monto: Optional[float] = None
     fecha_pago: Optional[datetime] = None
+    id_usuario_edicion: UUID
 
 
 class PagoResponse(PagoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
+    id: UUID
+    id_usuario_creacion: UUID
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
-# ================= TIPO VEHICULO =================
+# =========================
+# MODELOS: TIPO VEHICULO
+# =========================
 class TipoVehiculoBase(BaseModel):
-    nombre: str = Field(
-        ..., min_length=2, max_length=100, description="Nombre del tipo de vehículo"
-    )
-    descripcion: Optional[str] = Field(
-        None, description="Descripción del tipo de vehículo"
-    )
-    activo: bool = Field(True, description="Estado del tipo de vehículo")
-
-    @field_validator("nombre")
-    @classmethod
-    def validar_nombre(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("El nombre no puede estar vacío")
-        return v.strip().title()
+    nombre: str
+    descripcion: Optional[str] = None
+    activo: Optional[bool] = True
 
 
 class TipoVehiculoCreate(TipoVehiculoBase):
-    pass
+    id_usuario_creacion: UUID
 
 
 class TipoVehiculoUpdate(BaseModel):
-    nombre: Optional[str]
-    descripcion: Optional[str] = Field(
-        None, description="Nueva descripción del tipo de vehículo"
-    )
-    activo: Optional[bool] = Field(
-        None, description="Nuevo estado del tipo de vehículo"
-    )
-
-    @field_validator("nombre")
-    @classmethod
-    def validar_nombre(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and not v.strip():
-            raise ValueError("El nombre no puede estar vacío si se envía")
-        return v.strip().title() if v else v
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    activo: Optional[bool] = None
+    id_usuario_edicion: UUID
 
 
-class RolEnum(str, enum.Enum):
-    admin = "admin"
+class TipoVehiculoResponse(TipoVehiculoBase):
+    id: UUID
+    id_usuario_creacion: UUID
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
 
 
-# ------------------------
-# MODELOS DE ENTRADA
-# ------------------------
+# =========================
+# MODELOS: USUARIO
+# =========================
+class UsuarioBase(BaseModel):
+    username: str
+    rol: Optional[str] = "admin"
+    estado: Optional[bool] = True
 
 
-class UsuarioCreate(BaseModel):
-    username: str = Field(
-        ...,
-        min_length=3,
-        max_length=50,
-        description="Nombre de usuario único utilizado para autenticación",
-    )
-    password: str = Field(
-        ...,
-        min_length=6,
-        max_length=128,
-        description="Contraseña en texto plano (mínimo 6 caracteres)",
-    )
-    rol: RolEnum = Field(
-        default=RolEnum.admin,
-        description="Rol asignado al usuario",
-    )
+class UsuarioCreate(UsuarioBase):
+    password: str
+    id_usuario_creacion: UUID
 
 
 class UsuarioUpdate(BaseModel):
-    username: Optional[str] = Field(
-        None, min_length=3, max_length=50, description="Nombre de usuario"
-    )
-    password: Optional[str] = Field(
-        None, min_length=6, max_length=128, description="Nueva contraseña"
-    )
-    rol: Optional[RolEnum] = Field(None, description="Rol del usuario")
-    estado: Optional[bool] = Field(
-        None, description="Estado del usuario (activo/inactivo)"
-    )
+    username: Optional[str] = None
+    password: Optional[str] = None
+    rol: Optional[str] = None
+    estado: Optional[bool] = None
+    id_usuario_edicion: UUID
 
 
-# ------------------------
-# MODELOS DE RESPUESTA
-# ------------------------
+class UsuarioResponse(UsuarioBase):
+    id: UUID
+    id_usuario_creacion: Optional[UUID] = None
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
 
 
-class UsuarioRead(BaseModel):
-    id: uuid.UUID
+class UsuarioLogin(BaseModel):
     username: str
-    rol: RolEnum
-    estado: bool
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    password: str
 
-    class Config:
-        from_attributes = True  # Permite convertir desde SQLAlchemy ORM
+
+# =========================
+# MODELOS: VEHICULO
+# =========================
+class VehiculoBase(BaseModel):
+    marca: str
+    modelo: str
+    tipo_id: UUID
+    placa: Optional[str] = None
+    disponible: Optional[bool] = True
+
+
+class VehiculoCreate(VehiculoBase):
+    id_usuario_creacion: UUID
+
+
+class VehiculoUpdate(BaseModel):
+    marca: Optional[str] = None
+    modelo: Optional[str] = None
+    tipo_id: Optional[UUID] = None
+    placa: Optional[str] = None
+    disponible: Optional[bool] = None
+    id_usuario_edicion: UUID
+
+
+class VehiculoResponse(VehiculoBase):
+    id: UUID
+    id_usuario_creacion: UUID
+    id_usuario_edicion: Optional[UUID] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+# =========================
+# RESPUESTAS GENERALES
+# =========================
+class RespuestaAPI(BaseModel):
+    mensaje: str
+    exito: bool = True
+    datos: Optional[Dict[str, Any]] = None
+
+
+class RespuestaError(BaseModel):
+    mensaje: str
+    exito: bool = False
+    error: Optional[str] = None
+    codigo: Optional[int] = None
