@@ -78,31 +78,3 @@ class Contrato(Base):
     pagos = relationship(
         "Pago", back_populates="contrato", cascade="all, delete-orphan"
     )
-
-
-class ContratoBase(BaseModel):
-    cliente_id: int
-    vehiculo_id: int
-    empleado_id: int
-    fecha_inicio: datetime
-    fecha_fin: Optional[datetime] = None
-    activo: bool = True
-
-
-class ContratoCreate(ContratoBase):
-    pass
-
-
-class ContratoUpdate(BaseModel):
-    fecha_inicio: Optional[datetime] = None
-    fecha_fin: Optional[datetime] = None
-    activo: Optional[bool] = None
-
-
-class ContratoResponse(ContratoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
-
-    class Config:
-        from_attributes = True
