@@ -5,7 +5,6 @@ Entidad Cliente
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, Field, validator, EmailStr
 from datetime import datetime
 from typing import Optional, List
 import uuid
@@ -71,34 +70,3 @@ class Cliente(Base):
 
     def __repr__(self):
         return f"<Cliente(nombre='{self.nombre}', email='{self.email} activo={self.activo})>"
-
-
-class ClienteBase(BaseModel):
-    nombre: str
-    email: EmailStr
-    telefono: Optional[str] = None
-    activo: bool = True
-
-    @validator("nombre")
-    def validar_nombre(cls, v):
-        return v.strip().title()
-
-
-class ClienteCreate(ClienteBase):
-    pass
-
-
-class ClienteUpdate(BaseModel):
-    nombre: Optional[str] = None
-    email: Optional[EmailStr] = None
-    telefono: Optional[str] = None
-    activo: Optional[bool] = None
-
-
-class ClienteResponse(ClienteBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
-
-    class Config:
-        from_attributes = True

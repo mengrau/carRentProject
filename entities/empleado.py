@@ -72,30 +72,3 @@ class Empleado(Base):
 
     def __repr__(self):
         return f"<Empleado(nombre='{self.nombre}', email='{self.email} rol={self.rol})>"
-
-
-class EmpleadoBase(BaseModel):
-    nombre: str
-    email: EmailStr
-    rol: str = "Asesor"
-    activo: bool = True
-
-
-class EmpleadoCreate(EmpleadoBase):
-    pass
-
-
-class EmpleadoUpdate(BaseModel):
-    nombre: Optional[str] = None
-    email: Optional[EmailStr] = None
-    rol: Optional[str] = None
-    activo: Optional[bool] = None
-
-
-class EmpleadoResponse(EmpleadoBase):
-    id: int
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime]
-
-    class Config:
-        from_attributes = True
