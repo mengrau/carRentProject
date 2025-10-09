@@ -11,7 +11,7 @@ from crud.pagoCRUD import PagoCRUD
 from database.config import get_db
 from models import PagoCreate, PagoUpdate, PagoResponse, RespuestaAPI
 
-router = APIRouter(prefix="/pagos", tags=["pagos"])
+router = APIRouter(prefix="/Pagos", tags=["Pagos"])
 
 
 @router.get("/", response_model=List[PagoResponse])
@@ -21,7 +21,7 @@ async def obtener_pagos(
     contrato_id: Optional[UUID] = None,
     db: Session = Depends(get_db),
 ):
-    """Obtener todos los pagos con paginación y filtro por contrato."""
+    """Obtener todos los pagos y filtro por contrato."""
     try:
         pago_crud = PagoCRUD(db)
         pagos = pago_crud.obtener_pagos(skip=skip, limit=limit, contrato_id=contrato_id)

@@ -16,7 +16,7 @@ from models import (
     RespuestaAPI,
 )
 
-router = APIRouter(prefix="/tipos-vehiculo", tags=["Tipos de Vehículo"])
+router = APIRouter(prefix="/Tipos-de-Vehiculos", tags=["Tipos de Vehiculos"])
 
 
 # =========================================================

@@ -16,7 +16,7 @@ from models import (
     RespuestaAPI,
 )
 
-router = APIRouter(prefix="/empleados", tags=["empleados"])
+router = APIRouter(prefix="/Empleados", tags=["Empleados"])
 
 
 @router.get("/", response_model=List[EmpleadoResponse])
@@ -26,7 +26,7 @@ async def obtener_empleados(
     solo_activos: bool = False,
     db: Session = Depends(get_db),
 ):
-    """Obtener todos los empleados con paginación."""
+    """Obtener todos los empleados"""
     try:
         empleado_crud = EmpleadoCRUD(db)
         empleados = empleado_crud.obtener_empleados(

@@ -11,7 +11,7 @@ from crud.vehiculoCRUD import VehiculoCRUD
 from database.config import get_db
 from models import VehiculoCreate, VehiculoUpdate, VehiculoResponse, RespuestaAPI
 
-router = APIRouter(prefix="/vehiculos", tags=["vehiculos"])
+router = APIRouter(prefix="/Vehiculos", tags=["Vehiculos"])
 
 
 @router.get("/", response_model=List[VehiculoResponse])
@@ -19,7 +19,7 @@ async def obtener_vehiculos(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):
     """
-    Obtener todos los vehículos con paginación
+    Obtener todos los vehículos
     """
     try:
         vehiculo_crud = VehiculoCRUD(db)

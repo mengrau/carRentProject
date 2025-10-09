@@ -51,7 +51,7 @@ async def root():
         "documentacion": "/docs",
         "redoc": "/redoc",
         "endpoints": {
-            "clientes": "/cliente",
+            "Clientes": "/cliente",
             "contratos": "/contrato",
             "empleado": "/empleados",
             "pago": "/pago",

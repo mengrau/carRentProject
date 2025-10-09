@@ -16,7 +16,7 @@ class ClienteBase(BaseModel):
 class ClienteCreate(ClienteBase):
     """Modelo para crear cliente (el router actual solo envía nombre/email/telefono)."""
 
-    pass
+    id_usuario_creacion: UUID
 
 
 class ClienteUpdate(BaseModel):

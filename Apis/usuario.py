@@ -17,7 +17,7 @@ from models import (
 )
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+router = APIRouter(prefix="/Usuarios", tags=["Usuarios"])
 
 
 @router.get("/", response_model=List[UsuarioResponse])
@@ -155,8 +155,7 @@ async def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
 @router.post("/login", response_model=UsuarioResponse)
 async def autenticar_usuario(login_data: UsuarioLogin, db: Session = Depends(get_db)):
     """
-    Autenticar usuario. Actualmente devuelve el usuario (como en tu CRUD).
-    En producción conviene devolver un token JWT en vez del usuario.
+    Autenticar usuario.
     """
     try:
         crud = UsuarioCRUD(db)

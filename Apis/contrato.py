@@ -17,7 +17,7 @@ from models import (
 )
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/contratos", tags=["contratos"])
+router = APIRouter(prefix="/Contratos", tags=["Contratos"])
 
 
 @router.get("/", response_model=List[ContratoResponse])
@@ -27,7 +27,7 @@ async def obtener_contratos(
     solo_activos: bool = False,
     db: Session = Depends(get_db),
 ):
-    """Obtener todos los contratos con paginación."""
+    """Obtener todos los contratos"""
     try:
         contrato_crud = ContratoCRUD(db)
         contratos = contrato_crud.obtener_contratos(
