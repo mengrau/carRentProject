@@ -107,7 +107,6 @@ async def actualizar_empleado(
 
         empleado_actualizado = empleado_crud.actualizar_empleado(
             empleado_id,
-            id_usuario_edicion=empleado_data.id_usuario_edicion,
             **campos_actualizacion,
         )
         return empleado_actualizado

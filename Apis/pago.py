@@ -99,7 +99,6 @@ async def actualizar_pago(
 
         pago_actualizado = pago_crud.actualizar_pago(
             pago_id,
-            id_usuario_edicion=pago_data.id_usuario_edicion,
             **campos_actualizacion,
         )
         return pago_actualizado

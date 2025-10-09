@@ -98,7 +98,6 @@ async def actualizar_vehiculo(
 
         vehiculo_actualizado = vehiculo_crud.actualizar_vehiculo(
             vehiculo_id,
-            id_usuario_edicion=vehiculo_data.id_usuario_edicion,
             **campos_actualizacion,
         )
         return vehiculo_actualizado

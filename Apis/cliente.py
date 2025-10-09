@@ -99,14 +99,12 @@ async def actualizar_cliente(
     try:
         Cliente_CRUD = ClienteCRUD(db)
 
-        # Verificar que la categoría existe
         cliente_existente = Cliente_CRUD.obtener_cliente(cliente_id)
         if not cliente_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Cliente no encontrado"
             )
 
-        # Filtrar campos None para actualización
         campos_actualizacion = {
             k: v for k, v in cliente_data.model_dump().items() if v is not None
         }
@@ -135,7 +133,6 @@ async def eliminar_cliente(cliente_id: UUID, db: Session = Depends(get_db)):
     try:
         Cliente_CRUD = ClienteCRUD(db)
 
-        # Verificar que el cliente existe
         cliente_existente = Cliente_CRUD.obtener_cliente(cliente_id)
         if not cliente_existente:
             raise HTTPException(

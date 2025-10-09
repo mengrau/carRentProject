@@ -12,7 +12,7 @@ from models import (
     UsuarioCreate,
     UsuarioResponse,
     UsuarioUpdate,
-    UsuarioLogin,  # opcional para login si tienes ese modelo
+    UsuarioLogin,
     RespuestaAPI,
 )
 from sqlalchemy.orm import Session
@@ -28,7 +28,6 @@ async def obtener_usuarios(
     try:
         crud = UsuarioCRUD(db)
         usuarios = crud.obtener_usuarios()
-        # Si quisieras aplicar skip/limit en DB: cambiaría por query con offset/limit
         return usuarios
     except Exception as e:
         raise HTTPException(
@@ -62,7 +61,6 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
     """Crear un nuevo usuario (la contraseña se encripta en el CRUD)."""
     try:
         crud = UsuarioCRUD(db)
-        # Validar que no exista username
         if crud.obtener_usuario_por_username(usuario_data.username):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -99,24 +97,13 @@ async def actualizar_usuario(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
-        # Obtener diccionario y filtrar None (Pydantic v2 -> model_dump)
         campos = {k: v for k, v in usuario_data.model_dump().items() if v is not None}
-
-        # Se espera que usuario_data incluya id_usuario_edicion (igual que en otros routers)
-        id_usuario_edicion = campos.pop("id_usuario_edicion", None)
-        if id_usuario_edicion is None:
-            # Si prefieres exigirlo, lanza un 400; aquí lo dejamos como required por convención
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="id_usuario_edicion es requerido para la actualización",
-            )
 
         if not campos:
             return usuario_existente
 
         usuario_actualizado = crud.actualizar_usuario(
             str(usuario_id),
-            id_usuario_edicion=id_usuario_edicion,
             **campos,
         )
         return usuario_actualizado

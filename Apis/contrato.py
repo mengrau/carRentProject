@@ -109,7 +109,6 @@ async def actualizar_contrato(
 
         contrato_actualizado = contrato_crud.actualizar_contrato(
             contrato_id,
-            id_usuario_edicion=contrato_data.id_usuario_edicion,
             **campos_actualizacion,
         )
         return contrato_actualizado
