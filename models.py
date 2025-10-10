@@ -4,9 +4,6 @@ from uuid import UUID
 from datetime import datetime
 
 
-# =========================
-# MODELOS: CLIENTE
-# =========================
 class ClienteBase(BaseModel):
     nombre: str
     email: EmailStr
@@ -16,7 +13,7 @@ class ClienteBase(BaseModel):
 class ClienteCreate(ClienteBase):
     """Modelo para crear cliente (el router actual solo envía nombre/email/telefono)."""
 
-    pass
+    id_usuario_creacion: UUID
 
 
 class ClienteUpdate(BaseModel):
@@ -36,13 +33,9 @@ class ClienteResponse(ClienteBase):
     fecha_edicion: Optional[datetime] = None
     activo: Optional[bool] = True
 
-    # Pydantic v2: permitir construcciones desde objetos ORM (SQLAlchemy)
     model_config = {"from_attributes": True}
 
 
-# =========================
-# MODELOS: CONTRATO
-# =========================
 class ContratoBase(BaseModel):
     cliente_id: UUID
     vehiculo_id: UUID
@@ -76,9 +69,6 @@ class ContratoResponse(ContratoBase):
     model_config = {"from_attributes": True}
 
 
-# =========================
-# MODELOS: EMPLEADO
-# =========================
 class EmpleadoBase(BaseModel):
     nombre: str
     email: EmailStr
@@ -108,9 +98,6 @@ class EmpleadoResponse(EmpleadoBase):
     model_config = {"from_attributes": True}
 
 
-# =========================
-# MODELOS: PAGO
-# =========================
 class PagoBase(BaseModel):
     contrato_id: UUID
     monto: float
@@ -138,9 +125,6 @@ class PagoResponse(PagoBase):
     model_config = {"from_attributes": True}
 
 
-# =========================
-# MODELOS: TIPO VEHICULO
-# =========================
 class TipoVehiculoBase(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
@@ -168,9 +152,6 @@ class TipoVehiculoResponse(TipoVehiculoBase):
     model_config = {"from_attributes": True}
 
 
-# =========================
-# MODELOS: USUARIO
-# =========================
 class UsuarioBase(BaseModel):
     username: str
     rol: Optional[str] = "admin"
@@ -205,9 +186,6 @@ class UsuarioLogin(BaseModel):
     password: str
 
 
-# =========================
-# MODELOS: VEHICULO
-# =========================
 class VehiculoBase(BaseModel):
     marca: str
     modelo: str
@@ -239,9 +217,6 @@ class VehiculoResponse(VehiculoBase):
     model_config = {"from_attributes": True}
 
 
-# =========================
-# RESPUESTAS GENERALES
-# =========================
 class RespuestaAPI(BaseModel):
     mensaje: str
     exito: bool = True
