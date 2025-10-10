@@ -11,14 +11,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from models import ClienteCreate, ClienteResponse, ClienteUpdate, RespuestaAPI
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/clientes", tags=["clientes"])
+router = APIRouter(prefix="/Clientes", tags=["Clientes"])
 
 
 @router.get("/", response_model=List[ClienteResponse])
 async def obtener_clientes(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):
-    """Obtener todas las categorías con paginación."""
+    """Obtener todos los clientes"""
     try:
         Cliente_CRUD = ClienteCRUD(db)
         clientes = Cliente_CRUD.obtener_clientes(skip=skip, limit=limit)
@@ -32,7 +32,7 @@ async def obtener_clientes(
 
 @router.get("/{clientes_id}", response_model=ClienteResponse)
 async def obtener_cliente(clientes_id: UUID, db: Session = Depends(get_db)):
-    """Obtener una cliente por ID."""
+    """Obtener un cliente por ID."""
     try:
         Cliente_CRUD = ClienteCRUD(db)
         cliente = Cliente_CRUD.obtener_cliente(clientes_id)
@@ -72,13 +72,14 @@ async def obtener_cliente_por_email(email: str, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=ClienteResponse, status_code=status.HTTP_201_CREATED)
 async def crear_cliente(cliente_data: ClienteCreate, db: Session = Depends(get_db)):
-    """Crear una nueva categoría."""
+    """Crear un nuevo cliente."""
     try:
         Cliente_CRUD = ClienteCRUD(db)
         cliente = Cliente_CRUD.crear_cliente(
             nombre=cliente_data.nombre,
             email=cliente_data.email,
             telefono=cliente_data.telefono,
+            id_usuario_creacion=cliente_data.id_usuario_creacion,
         )
         return cliente
     except ValueError as e:
@@ -98,14 +99,12 @@ async def actualizar_cliente(
     try:
         Cliente_CRUD = ClienteCRUD(db)
 
-        # Verificar que la categoría existe
         cliente_existente = Cliente_CRUD.obtener_cliente(cliente_id)
         if not cliente_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Cliente no encontrado"
             )
 
-        # Filtrar campos None para actualización
         campos_actualizacion = {
             k: v for k, v in cliente_data.model_dump().items() if v is not None
         }
@@ -134,7 +133,6 @@ async def eliminar_cliente(cliente_id: UUID, db: Session = Depends(get_db)):
     try:
         Cliente_CRUD = ClienteCRUD(db)
 
-        # Verificar que el cliente existe
         cliente_existente = Cliente_CRUD.obtener_cliente(cliente_id)
         if not cliente_existente:
             raise HTTPException(

@@ -16,12 +16,9 @@ from models import (
     RespuestaAPI,
 )
 
-router = APIRouter(prefix="/tipos-vehiculo", tags=["Tipos de Vehículo"])
+router = APIRouter(prefix="/Tipos-de-Vehiculos", tags=["Tipos de Vehiculos"])
 
 
-# =========================================================
-# CREAR TIPO DE VEHÍCULO
-# =========================================================
 @router.post(
     "/", response_model=TipoVehiculoResponse, status_code=status.HTTP_201_CREATED
 )
@@ -46,9 +43,6 @@ def crear_tipo_vehiculo(tipo_data: TipoVehiculoCreate, db: Session = Depends(get
         )
 
 
-# =========================================================
-# LISTAR TODOS LOS TIPOS DE VEHÍCULO
-# =========================================================
 @router.get("/", response_model=List[TipoVehiculoResponse])
 def listar_tipos_vehiculo(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
@@ -65,9 +59,6 @@ def listar_tipos_vehiculo(
         )
 
 
-# =========================================================
-# OBTENER UN TIPO DE VEHÍCULO POR ID
-# =========================================================
 @router.get("/{tipo_id}", response_model=TipoVehiculoResponse)
 def obtener_tipo_vehiculo(tipo_id: UUID, db: Session = Depends(get_db)):
     """
@@ -89,9 +80,6 @@ def obtener_tipo_vehiculo(tipo_id: UUID, db: Session = Depends(get_db)):
         )
 
 
-# =========================================================
-# ACTUALIZAR UN TIPO DE VEHÍCULO
-# =========================================================
 @router.put("/{tipo_id}", response_model=TipoVehiculoResponse)
 def actualizar_tipo_vehiculo(
     tipo_id: UUID, tipo_data: TipoVehiculoUpdate, db: Session = Depends(get_db)
@@ -101,21 +89,19 @@ def actualizar_tipo_vehiculo(
     """
     crud = TipoVehiculoCRUD(db)
     try:
-        # Verificar si existe
+
         tipo_existente = crud.obtener_tipo_vehiculo(tipo_id)
         if not tipo_existente:
             raise HTTPException(
                 status_code=404, detail="Tipo de vehículo no encontrado"
             )
 
-        # Filtrar solo los campos enviados
         campos_actualizados = {
             k: v for k, v in tipo_data.model_dump().items() if v is not None
         }
 
         tipo_actualizado = crud.actualizar_tipo_vehiculo(
             tipo_id,
-            id_usuario_edicion=tipo_data.id_usuario_edicion,
             **campos_actualizados,
         )
 
@@ -130,9 +116,6 @@ def actualizar_tipo_vehiculo(
         )
 
 
-# =========================================================
-# ELIMINAR UN TIPO DE VEHÍCULO
-# =========================================================
 @router.delete("/{tipo_id}", response_model=RespuestaAPI)
 def eliminar_tipo_vehiculo(tipo_id: UUID, db: Session = Depends(get_db)):
     """
