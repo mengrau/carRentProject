@@ -112,13 +112,14 @@ class ContratoCRUD:
             return None
 
         if "fecha_inicio" in kwargs and kwargs["fecha_inicio"]:
-            if contrato.fecha_fin and kwargs["fecha_inicio"] > contrato.fecha_fin:
+            fecha_fin_comparar = kwargs.get("fecha_fin", contrato.fecha_fin)
+            if fecha_fin_comparar and kwargs["fecha_inicio"] > fecha_fin_comparar:
                 raise ValueError("La fecha de inicio no puede ser mayor a la de fin")
 
         if "fecha_fin" in kwargs and kwargs["fecha_fin"]:
-            if kwargs["fecha_fin"] < contrato.fecha_inicio:
+            fecha_inicio_comparar = kwargs.get("fecha_inicio", contrato.fecha_inicio)
+            if kwargs["fecha_fin"] < fecha_inicio_comparar:
                 raise ValueError("La fecha de fin no puede ser anterior a la de inicio")
-
         for key, value in kwargs.items():
             if hasattr(contrato, key) and value is not None:
                 setattr(contrato, key, value)
