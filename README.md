@@ -1,29 +1,26 @@
-# 🚗 Sistema de Gestión de Alquiler de Vehículos
+# 🚗 Sistema de Gestión de Contratos y Vehículos
 
-Sistema de gestión desarrollado en **Python 3**, con **SQLAlchemy ORM** y base de datos **PostgreSQL (Neon)**.  
-Incluye autenticación de usuarios con login, creación automática de un administrador por defecto y operaciones **CRUD** para todas las entidades principales.
+Este proyecto es una **API REST** desarrollada con **FastAPI**, diseñada para administrar contratos, clientes, empleados, pagos, usuarios y vehículos.  
+El sistema permite crear, leer, actualizar y eliminar información de las entidades principales, manteniendo relaciones entre ellas mediante una base de datos relacional.
 
 ---
 
-## 📂 Estructura del Proyecto
+## 🧩 Características principales
+
+- 🧾 **Gestión completa de contratos** entre clientes, vehículos y empleados.  
+- 🚘 **Administración de vehículos** y tipos de vehículo.  
+- 💳 **Registro y control de pagos** asociados a los contratos.  
+- 👥 **Gestión de usuarios, clientes y empleados.**  
+- 🧱 **Modelos relacionales** usando SQLAlchemy.  
+- ⚙️ **Migraciones automáticas** con Alembic.  
+- 🌐 **Documentación interactiva de la API** generada automáticamente por FastAPI (`/docs` o `/redoc`).
+
+---
+
+## 📂 Estructura del proyecto
 
 ```bash
-├── auth/
-│   └── security.py
-│
-├── crud/                # Lógica CRUD por entidad
-│   ├── clienteCRUD.py
-│   ├── contratoCRUD.py
-│   ├── empleadoCRUD.py
-│   ├── pagoCRUD.py
-│   ├── tipoVehiculoCRUD.py
-│   ├── usuarioCRUD.py
-│   └── vehiculoCRUD.py
-│
-├── database/            # Configuración de base de datos
-│   └── config.py
-│
-├── entities/            # Modelos de base de datos
+├── Apis/                     # 📡 Endpoints de la API (routers)
 │   ├── cliente.py
 │   ├── contrato.py
 │   ├── empleado.py
@@ -32,93 +29,93 @@ Incluye autenticación de usuarios con login, creación automática de un admini
 │   ├── usuario.py
 │   └── vehiculo.py
 │
-├── migrations/          # Migraciones con Alembic
+├── crud/                     # 🧩 Lógica CRUD por entidad
+│   ├── clienteCRUD.py
+│   ├── contratoCRUD.py
+│   ├── empleadoCRUD.py
+│   ├── pagoCRUD.py
+│   ├── tipoVehiculoCRUD.py
+│   ├── usuarioCRUD.py
+│   └── vehiculoCRUD.py
+│
+├── database/                 # 🗄️ Configuración de base de datos
+│   └── config.py
+│
+├── entities/                 # 🧱 Modelos (SQLAlchemy)
+│   ├── cliente.py
+│   ├── contrato.py
+│   ├── empleado.py
+│   ├── pago.py
+│   ├── tipoVehiculo.py
+│   ├── usuario.py
+│   └── vehiculo.py
+│
+├── migrations/               # 🧬 Migraciones con Alembic
 │   ├── env.py
 │   ├── script.py.mako
 │   └── versions/
 │
-├── src/                 # Archivos adicionales
+├── src/                      # 📦 Código auxiliar (servicios, utilidades, etc.)
 │
-├── main.py              # Punto de entrada principal
-├── requirements.txt     # Dependencias del proyecto
-└── README.md
+├── models.py                 # 🧾 Modelos Pydantic (schemas)
+│
+├── main.py                   # 🚀 Punto de entrada principal
+│
+├── requirements.txt           # 📋 Dependencias del proyecto
+│
+└── README.md                  # 📘 Documentación general
 ```
 
 ---
 
-## ▶️ Ejecución del Sistema
+## ⚙️ Instalación y configuración
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone https://github.com/mengrau/carRentProject.git
-   cd carRentProject
-   ```
+### 1️⃣ Clonar el repositorio
+```bash
+git clone https://github.com/mengrau/carRentProject.git
+cd carRentProject
+```
 
-2. **Crear y activar entorno virtual (opcional pero recomendado)**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # En Linux/Mac
-   venv\Scripts\activate      # En Windows
-   ```
+### 2️⃣ Instalar dependencias
+```bash
+pip install -r requirements.txt
+```
 
-3. **Instalar dependencias**
-   ```bash
-   pip install -r requirements.txt
-   ```
 
-4. **Configurar variables de entorno**
-   Crear un archivo `.env` en la raíz del proyecto con la conexión a Neon PostgreSQL:
-   ```env
-   DATABASE_URL='postgresql://neondb_owner:npg_Rsx6ZGyTC4Qk@ep-solitary-cake-ad9x7js3-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
-   ```
+## 🚀 Ejecución del proyecto
 
-5. **Ejecutar el sistema**
-   ```bash
-   python main.py
-   ```
+Inicia el servidor FastAPI:
+```bash
+py main.py
+```
 
-6. **Usuario administrador por defecto**
-   - Usuario: `admin`  
-   - Contraseña: `admin123`
+Por defecto, la API estará disponible en:  
+> 🌐 http://127.0.0.1:8000
 
 ---
 
-## 🧩 Lógica de Negocio
+## 🧭 Documentación de la API
 
-- **Autenticación:**  
-  El sistema solicita credenciales y valida usuarios contra la base de datos.  
-  Si no existe un administrador, se crea automáticamente.
-
-- **Gestión de Usuarios:**  
-  Crear, listar, actualizar y eliminar usuarios del sistema.  
-  Roles soportados: `admin`, `empleado`.
-
-- **Clientes:**  
-  CRUD completo de clientes con validación de email único.
-
-- **Empleados:**  
-  Administración de personal con rol y estado activo/inactivo.
-
-- **Vehículos y Tipos de Vehículo:**  
-  - Registro de vehículos con placa, marca, modelo y disponibilidad.  
-  - Clasificación de vehículos por tipo.  
-
-- **Contratos:**  
-  - Asociar cliente, empleado y vehículo en un contrato.  
-  - Control de fechas de inicio y fin.  
-  - Estado activo/inactivo.  
-
-- **Pagos:**  
-  - Registro de pagos asociados a contratos.  
-  - Permite listar, actualizar y eliminar pagos.
+- Swagger UI → [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)  
+- Redoc → [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
-## 🛠 Tecnologías Utilizadas
-- Python 3
-- SQLAlchemy ORM
-- PostgreSQL (Neon)
-- Alembic (migraciones)
-- dotenv (variables de entorno)
+## 🧰 Tecnologías utilizadas
+
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [SQLAlchemy](https://www.sqlalchemy.org/)
+- [Alembic](https://alembic.sqlalchemy.org/)
+- [Pydantic](https://docs.pydantic.dev/)
+- [Uvicorn](https://www.uvicorn.org/)
+- [PostgreSQL](https://www.postgresql.org/) *(adaptable a SQLite o MySQL)*
+
+---
+
+## 🧑‍💻 Autores
+
+**Emmanuel Orozco Muñoz**
+**Andrés Felipe Méndez Cano**  
+💼 Desarrolladores Backend – Python / FastAPI 
 
 ---
