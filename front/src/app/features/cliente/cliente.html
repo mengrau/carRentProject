@@ -1,0 +1,168 @@
+<div class="categoria-list">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Gestión de Categorías</h2>
+      <button class="btn btn-success" (click)="openCreateModal()">
+        Nueva Categoría
+      </button>
+    </div>
+    
+    <div class="card-body">
+      <!-- Filtros -->
+      <div class="filters mb-3">
+        <div class="row">
+          <div class="col-md-4">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Buscar por nombre..."
+              [(ngModel)]="filters.nombre"
+              (input)="onFilterChange()"
+            >
+          </div>
+          <div class="col-md-3">
+            <select 
+              class="form-control" 
+              [(ngModel)]="filters.activa"
+              (change)="onFilterChange()"
+            >
+              <option value="">Todos los estados</option>
+              <option value="true">Activas</option>
+              <option value="false">Inactivas</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-secondary" (click)="clearFilters()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de categorías -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Fecha Creación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="6" class="text-center">Cargando...</td>
+            </tr>
+            <tr *ngIf="!loading && categorias.length === 0">
+              <td colspan="6" class="text-center">No hay categorías disponibles</td>
+            </tr>
+            <tr *ngFor="let categoria of categorias">
+              <td>{{ categoria.id }}</td>
+              <td>{{ categoria.nombre }}</td>
+              <td>{{ categoria.descripcion || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-success]="categoria.activa" [class.badge-danger]="!categoria.activa">
+                  {{ categoria.activa ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td>{{ categoria.fecha_creacion | date:'short' }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary" (click)="editCategoria(categoria)">
+                  Editar
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteCategoria(categoria)">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination mt-3" *ngIf="totalPages > 1">
+        <button 
+          class="btn btn-secondary" 
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
+        >
+          Anterior
+        </button>
+        <span class="mx-3">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+        <button 
+          class="btn btn-secondary" 
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar categoría -->
+  <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ editingCategoria ? 'Editar Categoría' : 'Nueva Categoría' }}</h5>
+          <button type="button" class="close" (click)="closeModal()">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="saveCategoria()">
+            <div class="form-group">
+              <label for="nombre">Nombre *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="nombre" 
+                [(ngModel)]="categoriaForm.nombre" 
+                name="nombre"
+                required
+                placeholder="Ingrese el nombre de la categoría"
+              >
+            </div>
+            <div class="form-group">
+              <label for="descripcion">Descripción</label>
+              <textarea 
+                class="form-control" 
+                id="descripcion" 
+                [(ngModel)]="categoriaForm.descripcion" 
+                name="descripcion"
+                rows="3"
+                placeholder="Ingrese una descripción (opcional)"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  id="activa" 
+                  [(ngModel)]="categoriaForm.activa" 
+                  name="activa"
+                >
+                <label class="form-check-label" for="activa">
+                  Categoría activa
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="saveCategoria()">
+            {{ editingCategoria ? 'Actualizar' : 'Crear' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
