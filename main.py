@@ -3,6 +3,7 @@ from Apis import cliente, contrato, empleado, pago, tipoVehiculo, usuario, vehic
 from database.config import create_tables
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from auth.routes import router as auth_router; 
 
 app = FastAPI(
     title="Sistema de Renta de Vehiculos",
@@ -20,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(cliente.router)
 app.include_router(contrato.router)
 app.include_router(empleado.router)
