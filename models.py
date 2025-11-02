@@ -22,6 +22,7 @@ class ClienteUpdate(BaseModel):
     nombre: Optional[str] = None
     email: Optional[EmailStr] = None
     telefono: Optional[str] = None
+    activo: Optional[bool] = None
     id_usuario_edicion: UUID
 
 
@@ -228,3 +229,12 @@ class RespuestaError(BaseModel):
     exito: bool = False
     error: Optional[str] = None
     codigo: Optional[int] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user_id: UUID
+
+class LoginRequest(BaseModel):
+    username: str  
+    password: str
