@@ -3,7 +3,7 @@ SQLAlchemy==2.0.23
 alembic==1.12.1
 
 # Database Driver (PostgreSQL)
-psycopg2-binary==2.9.10  
+psycopg2-binary==2.9.11  
 
 # Data Validation and Serialization
 pydantic==2.9.2
