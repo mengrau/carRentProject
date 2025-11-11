@@ -1,5 +1,5 @@
 import uvicorn
-from Apis import cliente, contrato, empleado, pago, tipoVehiculo, usuario, vehiculo
+from Apis import cliente, contrato, empleado, pago, tipoVehiculo, usuario, vehiculo, dashboard
 from database.config import create_tables
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +29,7 @@ app.include_router(pago.router)
 app.include_router(tipoVehiculo.router)
 app.include_router(usuario.router)
 app.include_router(vehiculo.router)
+app.include_router(dashboard.router)
 
 
 @app.on_event("startup")
