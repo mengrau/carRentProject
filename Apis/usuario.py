@@ -16,8 +16,11 @@ from models import (
     RespuestaAPI,
 )
 from sqlalchemy.orm import Session
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Usuarios", tags=["Usuarios"])
+router = APIRouter(
+    prefix="/Usuarios", tags=["Usuarios"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[UsuarioResponse])

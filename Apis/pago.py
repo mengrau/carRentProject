@@ -10,8 +10,11 @@ from sqlalchemy.orm import Session
 from crud.pagoCRUD import PagoCRUD
 from database.config import get_db
 from models import PagoCreate, PagoUpdate, PagoResponse, RespuestaAPI
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Pagos", tags=["Pagos"])
+router = APIRouter(
+    prefix="/Pagos", tags=["Pagos"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[PagoResponse])

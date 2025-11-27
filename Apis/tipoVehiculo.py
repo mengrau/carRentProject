@@ -15,8 +15,13 @@ from models import (
     TipoVehiculoResponse,
     RespuestaAPI,
 )
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Tipos-de-Vehiculos", tags=["Tipos de Vehiculos"])
+router = APIRouter(
+    prefix="/Tipos-de-Vehiculos",
+    tags=["Tipos de Vehiculos"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.post(
