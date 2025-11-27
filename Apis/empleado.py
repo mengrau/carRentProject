@@ -15,8 +15,11 @@ from models import (
     EmpleadoResponse,
     RespuestaAPI,
 )
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Empleados", tags=["Empleados"])
+router = APIRouter(
+    prefix="/Empleados", tags=["Empleados"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[EmpleadoResponse])

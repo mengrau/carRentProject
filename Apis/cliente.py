@@ -1,5 +1,5 @@
 """
-API de Categorías - Endpoints para gestión de categorías
+API de Clientes - Endpoints para gestión de clientes
 """
 
 from typing import List
@@ -10,8 +10,11 @@ from database.config import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from models import ClienteCreate, ClienteResponse, ClienteUpdate, RespuestaAPI
 from sqlalchemy.orm import Session
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Clientes", tags=["Clientes"])
+router = APIRouter(
+    prefix="/Clientes", tags=["Clientes"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[ClienteResponse])

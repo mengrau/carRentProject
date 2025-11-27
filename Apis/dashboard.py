@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database.config import get_db
 from entities import Cliente, Vehiculo, Contrato
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+router = APIRouter(
+    prefix="/dashboard", tags=["Dashboard"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/counts")
