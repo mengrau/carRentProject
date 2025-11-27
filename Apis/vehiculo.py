@@ -10,8 +10,11 @@ from sqlalchemy.orm import Session
 from crud.vehiculoCRUD import VehiculoCRUD
 from database.config import get_db
 from models import VehiculoCreate, VehiculoUpdate, VehiculoResponse, RespuestaAPI
+from auth.deps import get_current_user
 
-router = APIRouter(prefix="/Vehiculos", tags=["Vehiculos"])
+router = APIRouter(
+    prefix="/Vehiculos", tags=["Vehiculos"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.get("/", response_model=List[VehiculoResponse])
