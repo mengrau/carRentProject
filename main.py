@@ -1,9 +1,18 @@
 import uvicorn
-from Apis import cliente, contrato, empleado, pago, tipoVehiculo, usuario, vehiculo, dashboard
+from Apis import (
+    cliente,
+    contrato,
+    empleado,
+    pago,
+    tipoVehiculo,
+    usuario,
+    vehiculo,
+    dashboard,
+)
 from database.config import create_tables
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from auth.routes import router as auth_router; 
+from auth.routes import router as auth_router
 
 app = FastAPI(
     title="Sistema de Renta de Vehiculos",
@@ -51,6 +60,7 @@ async def root():
         "documentacion": "/docs",
         "redoc": "/redoc",
         "endpoints": {
+            "Auth": "/auth",
             "Clientes": "/cliente",
             "contratos": "/contrato",
             "empleado": "/empleados",

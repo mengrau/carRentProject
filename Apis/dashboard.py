@@ -1,10 +1,10 @@
-# routers/dashboard.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database.config import get_db
 from entities import Cliente, Vehiculo, Contrato
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+
 
 @router.get("/counts")
 def get_counts(db: Session = Depends(get_db)):
@@ -14,5 +14,5 @@ def get_counts(db: Session = Depends(get_db)):
     return {
         "clientes": total_clientes,
         "vehiculos": total_vehiculos,
-        "contratos": total_contratos
+        "contratos": total_contratos,
     }
