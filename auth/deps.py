@@ -4,38 +4,41 @@ from jose import JWTError
 from sqlalchemy.orm import Session
 from uuid import UUID
 from .utils import decode_token
-from ..database import get_db
-from ..crud.usuarioCRUD import UsuarioCRUD
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+from database.config import get_db
+from crud.usuarioCRUD import UsuarioCRUD
+from fastapi import Header
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    authorization: str = Header(None, alias="Authorization"),
+    db: Session = Depends(get_db),
 ):
+
     try:
+
+        if not authorization:
+            raise Exception()
+
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            raise Exception()
+
         payload = decode_token(token)
         sub = payload.get("sub")
         if not sub:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido"
-            )
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido"
-        )
+            raise Exception()
 
-    crud = UsuarioCRUD(db)
-    try:
         user_id = UUID(sub)
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido"
-        )
 
-    usuario = crud.obtener_usuario_por_id(user_id)
-    if not usuario:
+        crud = UsuarioCRUD(db)
+        usuario = crud.obtener_usuario_por_id(user_id)
+        if not usuario:
+            raise Exception()
+
+        return usuario
+
+    except Exception:
+
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuario no existe"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado"
         )
-    return usuario
