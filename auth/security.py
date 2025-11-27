@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 
-# Configuración para encriptar contraseñas
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
